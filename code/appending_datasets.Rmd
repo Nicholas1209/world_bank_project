@@ -1,0 +1,19 @@
+---
+title: "Appending Datasets"
+subtitle: "GSE S580"
+author: "Emory Rapaport, Kim Her, Nicholas Feng Schaefer"
+output: html_notebook
+---
+
+# Set Up
+```{r, message=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+# Loading Datasets
+```{r}
+greenwheel <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/gw_filtered.xlsx")
+just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/ice_filtered.xlsx")
+```
+
