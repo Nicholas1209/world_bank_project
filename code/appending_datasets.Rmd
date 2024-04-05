@@ -17,3 +17,58 @@ greenwheel <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world
 just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/ice_filtered.xlsx")
 ```
 
+# Pre Sanity Checks
+
+## Identification Variable
+```{r}
+greenwheel$greenwheel_dummy <- 1
+just_driver$greenwheel_dummy <- 0
+```
+
+## Column Names
+```{r}
+if (identical(colnames(greenwheel), colnames(just_driver)) == TRUE){
+    print("The column names of both datasets are the same.")
+} else{
+    print("The column names of the datasets don't match")
+}
+```
+
+```{r}
+setdiff(colnames(greenwheel), colnames(just_driver))
+```
+
+```{r}
+setdiff(colnames(just_driver), colnames(greenwheel))
+```
+
+### Questions
+
+* Do we need `start_x`, `end_x`, ... for GreenWheel and `start` and `end` for Just Driver?
+
+* Does it matter who is head of household if not the drivers themselves? For the Just Driver dataset we have information on who the head of household is; however, for the GreenWheel dataset we only have data only whether the driver is the head of the household or not. If we don't need that specific information, we can just combine the two columns into one and transform it into a binary dummy variable (1 if head of household and 0 if not).
+
+## Renaming Columns
+```{r}
+greenwheel <- greenwheel %>% 
+    rename(edu = educ,
+           )
+
+just_driver <- just_driver %>% 
+    rename(edc = educ)
+```
+
+```{r}
+greenwheel$start_x %>% 
+    head()
+```
+
+```{r}
+greenwheel$start_y %>% 
+    head()
+```
+
+
+# Appending Datasets
+
+
