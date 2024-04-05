@@ -55,7 +55,9 @@ greenwheel <- greenwheel %>%
            )
 
 just_driver <- just_driver %>% 
-    rename(edc = educ)
+    rename(edc = educ,
+           income_other = other_income,
+           income_other_1 = other_income_1)
 ```
 
 ```{r}
@@ -68,7 +70,10 @@ greenwheel$start_y %>%
     head()
 ```
 
-
 # Appending Datasets
+
+* Summary statistics for both groups for different demographics
+
+* DHS dataset for 2020 (need to apply for it).
 
 
