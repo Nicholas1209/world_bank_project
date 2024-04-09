@@ -13,8 +13,8 @@ library(readxl)
 
 # Loading Datasets
 ```{r}
-greenwheel <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/gw_filtered.xlsx")
-just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/ice_filtered.xlsx")
+greenwheel <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/gw_filtered.xlsx")
+just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/ice_filtered.xlsx")
 ```
 
 # Pre Sanity Checks
@@ -48,32 +48,67 @@ setdiff(colnames(just_driver), colnames(greenwheel))
 
 * Does it matter who is head of household if not the drivers themselves? For the Just Driver dataset we have information on who the head of household is; however, for the GreenWheel dataset we only have data only whether the driver is the head of the household or not. If we don't need that specific information, we can just combine the two columns into one and transform it into a binary dummy variable (1 if head of household and 0 if not).
 
+* Insurance data for both groups is different (for GreenWheels it is "Yes, I have insurance" and "No, I don't." and for Just Driver the specific insurance). Should I just dummy-encode it as 1 = driver has insurance and 0 = driver does not have insurance?
+
 ## Renaming Columns
 ```{r}
 greenwheel <- greenwheel %>% 
-    rename(edu = educ,
-           )
+    rename(educ = edu,
+           daily_income_boda = salary,
+           content = flex,
+           start_pre = start_x,
+           end_pre = end_x,
+           start_daily = start_y,
+           end_daily = end_y) %>% 
+    dplyr::select(-far_home, -unsafe, -price_dist, -card)
 
 just_driver <- just_driver %>% 
-    rename(edc = educ,
-           income_other = other_income,
-           income_other_1 = other_income_1)
+    rename(educ = edc,
+           other_income = income_other,
+           other_income_1 = income_other_1,
+           daily_income_boda = income_boda,
+           start_pre = start,
+           end_pre = end)
 ```
 
 ```{r}
-greenwheel$start_x %>% 
-    head()
+setdiff(colnames(greenwheel), colnames(just_driver))
 ```
 
 ```{r}
-greenwheel$start_y %>% 
-    head()
+setdiff(colnames(just_driver), colnames(greenwheel))
+```
+
+```{r}
+greenwheel$reject_other <- as.integer(greenwheel$reject_other)
+just_driver$reject_other <- as.integer(just_driver$reject_other)
+```
+
+## Number of Columns
+```{r}
+cat("The appended dataset should have", nrow(greenwheel) + nrow(just_driver), "rows.")
 ```
 
 # Appending Datasets
+```{r}
+appended_df <- bind_rows(just_driver, greenwheel)
 
-* Summary statistics for both groups for different demographics
+if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
+    print("The appending was successful!")
+} else{
+    print("Something went wrong.")
+}
+```
 
-* DHS dataset for 2020 (need to apply for it).
+# Post Sanity Checks
+
+## Label Encoding The Columns
+```{r}
+appended_df <- appended_df %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0))
+```
+
+
+
 
 
