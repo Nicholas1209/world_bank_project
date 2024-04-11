@@ -9,6 +9,8 @@ output: html_notebook
 ```{r, message=FALSE}
 library(tidyverse)
 library(readxl)
+library(lubridate)
+library(openxlsx)
 ```
 
 # Loading Datasets
@@ -84,6 +86,11 @@ greenwheel$reject_other <- as.integer(greenwheel$reject_other)
 just_driver$reject_other <- as.integer(just_driver$reject_other)
 ```
 
+```{r}
+just_driver$start_pre <- with_tz(ymd_hms(just_driver$start_pre), "UTC")
+just_driver$end_pre <- with_tz(ymd_hms(just_driver$end_pre), "UTC")
+```
+
 ## Number of Columns
 ```{r}
 cat("The appended dataset should have", nrow(greenwheel) + nrow(just_driver), "rows.")
@@ -100,12 +107,27 @@ if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
 }
 ```
 
-# Post Sanity Checks
-
-## Label Encoding The Columns
-```{r}
+# Label Encoding The Columns
+```{r, eval=FALSE}
 appended_df <- appended_df %>% 
-    mutate(gender = ifelse(gender == "Male", 1, 0))
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           )
+```
+
+```{r}
+write.xlsx(appended_df, file = "/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx")
 ```
 
 

@@ -1759,9 +1759,11 @@ display: none;
 <h1>Set Up</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KHJlYWR4bClcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KHJlYWR4bClcbmxpYnJhcnkobHVicmlkYXRlKVxubGlicmFyeShvcGVueGxzeClcbmBgYCJ9 -->
 <pre class="r"><code>library(tidyverse)
-library(readxl)</code></pre>
+library(readxl)
+library(lubridate)
+library(openxlsx)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1858,18 +1860,24 @@ insurance and 0 = driver does not have insurance?</p></li>
 <h2>Renaming Columns</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSBcbiAgICByZW5hbWUoZWR1YyA9IGVkdSxcbiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBzYWxhcnksXG4gICAgICAgICAgIGNvbnRlbnQgPSBmbGV4KSAlPiUgXG4gICAgZHBseXI6OnNlbGVjdCgtZmFyX2hvbWUsIC11bnNhZmUsIC1wcmljZV9kaXN0LCAtY2FyZClcblxuanVzdF9kcml2ZXIgPC0ganVzdF9kcml2ZXIgJT4lIFxuICAgIHJlbmFtZShlZHVjID0gZWRjLFxuICAgICAgICAgICBvdGhlcl9pbmNvbWUgPSBpbmNvbWVfb3RoZXIsXG4gICAgICAgICAgIG90aGVyX2luY29tZV8xID0gaW5jb21lX290aGVyXzEsXG4gICAgICAgICAgIGRhaWx5X2luY29tZV9ib2RhID0gaW5jb21lX2JvZGEpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSBcbiAgICByZW5hbWUoZWR1YyA9IGVkdSxcbiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBzYWxhcnksXG4gICAgICAgICAgIGNvbnRlbnQgPSBmbGV4LFxuICAgICAgICAgICBzdGFydF9wcmUgPSBzdGFydF94LFxuICAgICAgICAgICBlbmRfcHJlID0gZW5kX3gsXG4gICAgICAgICAgIHN0YXJ0X2RhaWx5ID0gc3RhcnRfeSxcbiAgICAgICAgICAgZW5kX2RhaWx5ID0gZW5kX3kpICU+JSBcbiAgICBkcGx5cjo6c2VsZWN0KC1mYXJfaG9tZSwgLXVuc2FmZSwgLXByaWNlX2Rpc3QsIC1jYXJkKVxuXG5qdXN0X2RyaXZlciA8LSBqdXN0X2RyaXZlciAlPiUgXG4gICAgcmVuYW1lKGVkdWMgPSBlZGMsXG4gICAgICAgICAgIG90aGVyX2luY29tZSA9IGluY29tZV9vdGhlcixcbiAgICAgICAgICAgb3RoZXJfaW5jb21lXzEgPSBpbmNvbWVfb3RoZXJfMSxcbiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBpbmNvbWVfYm9kYSxcbiAgICAgICAgICAgc3RhcnRfcHJlID0gc3RhcnQsXG4gICAgICAgICAgIGVuZF9wcmUgPSBlbmQpXG5gYGAifQ== -->
 <pre class="r"><code>greenwheel &lt;- greenwheel %&gt;% 
     rename(educ = edu,
            daily_income_boda = salary,
-           content = flex) %&gt;% 
+           content = flex,
+           start_pre = start_x,
+           end_pre = end_x,
+           start_daily = start_y,
+           end_daily = end_y) %&gt;% 
     dplyr::select(-far_home, -unsafe, -price_dist, -card)
 
 just_driver &lt;- just_driver %&gt;% 
     rename(educ = edc,
            other_income = income_other,
            other_income_1 = income_other_1,
-           daily_income_boda = income_boda)</code></pre>
+           daily_income_boda = income_boda,
+           start_pre = start,
+           end_pre = end)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1878,9 +1886,9 @@ just_driver &lt;- just_driver %&gt;%
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0ZGlmZihjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKVxuYGBgIn0= -->
 <pre class="r"><code>setdiff(colnames(greenwheel), colnames(just_driver))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcInN0YXJ0X3hcIiAgICBcImVuZF94XCIgICAgICBcIm5hbWVcIiAgICAgICBcIm90aGVyX2FwcHNcIiBcImJpa2VcIiAgICAgICBcIndoeVwiICAgICAgICBcImtub3dcIiAgICAgICBcInBob25lXCIgICAgIFxuIFs5XSBcInN0YXJ0X3lcIiAgICBcImVuZF95XCIgICAgICBcImd3XCIgICAgICAgICBcIm90aGVyX3dvcmtcIlxuIn0= -->
-<pre><code> [1] &quot;start_x&quot;    &quot;end_x&quot;      &quot;name&quot;       &quot;other_apps&quot; &quot;bike&quot;       &quot;why&quot;        &quot;know&quot;       &quot;phone&quot;     
- [9] &quot;start_y&quot;    &quot;end_y&quot;      &quot;gw&quot;         &quot;other_work&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcIm5hbWVcIiAgICAgICAgXCJvdGhlcl9hcHBzXCIgIFwiYmlrZVwiICAgICAgICBcIndoeVwiICAgICAgICAgXCJrbm93XCIgICAgICAgIFwicGhvbmVcIiAgICAgICBcInN0YXJ0X2RhaWx5XCIgXCJlbmRfZGFpbHlcIiAgXG4gWzldIFwiZ3dcIiAgICAgICAgICBcIm90aGVyX3dvcmtcIiBcbiJ9 -->
+<pre><code> [1] &quot;name&quot;        &quot;other_apps&quot;  &quot;bike&quot;        &quot;why&quot;         &quot;know&quot;        &quot;phone&quot;       &quot;start_daily&quot; &quot;end_daily&quot;  
+ [9] &quot;gw&quot;          &quot;other_work&quot; </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1889,12 +1897,12 @@ just_driver &lt;- just_driver %&gt;%
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0ZGlmZihjb2xuYW1lcyhqdXN0X2RyaXZlciksIGNvbG5hbWVzKGdyZWVud2hlZWwpKVxuYGBgIn0= -->
 <pre class="r"><code>setdiff(colnames(just_driver), colnames(greenwheel))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcInN0YXJ0XCIgICAgICAgICAgICBcImVuZFwiICAgICAgICAgICAgICBcImhlYWRfbm90X3NlbGZcIiAgICBcImFwcFwiICAgICAgICAgICAgICBcInBheWluZ1wiICAgICAgICAgICBcImxvYW5fbGVuZ3RoXCIgICAgIFxuIFs3XSBcImxvYW5fY29tcFwiICAgICAgICBcIndlZWtseV9wYXlcIiAgICAgICBcImxlc3NfaHJcIiAgICAgICAgICBcImluc3VyZV90aGlyZFwiICAgICBcImluc3VyZV9jb21wXCIgICAgICBcImluc3VyZV9tZWRcIiAgICAgIFxuWzEzXSBcImluc3VyZV9saWZlXCIgICAgICBcImluc3VyZV9ub25lXCIgICAgICBcImRhdGVcIiAgICAgICAgICAgICBcInBldHJvbFwiICAgICAgICAgICBcIm9pbFwiICAgICAgICAgICAgICBcIm9pbF9jb3N0XCIgICAgICAgIFxuWzE5XSBcInBheW1lbnRcIiAgICAgICAgICBcInBheW1lbnRfY29zdFwiICAgICBcInBhc3Nlbmdlcl9vZmZcIiAgICBcImRlbGl2X29mZlwiICAgICAgICBcInBhc3Nlbmdlcl9vblwiICAgICBcImRlbGl2X29uXCIgICAgICAgIFxuWzI1XSBcInJlamVjdF90aW1lXCIgICAgICBcImFwcF9wYXltZW50XCIgICAgICBcImFwcF9wYXltZW50X2Nvc3RcIlxuIn0= -->
-<pre><code> [1] &quot;start&quot;            &quot;end&quot;              &quot;head_not_self&quot;    &quot;app&quot;              &quot;paying&quot;           &quot;loan_length&quot;     
- [7] &quot;loan_comp&quot;        &quot;weekly_pay&quot;       &quot;less_hr&quot;          &quot;insure_third&quot;     &quot;insure_comp&quot;      &quot;insure_med&quot;      
-[13] &quot;insure_life&quot;      &quot;insure_none&quot;      &quot;date&quot;             &quot;petrol&quot;           &quot;oil&quot;              &quot;oil_cost&quot;        
-[19] &quot;payment&quot;          &quot;payment_cost&quot;     &quot;passenger_off&quot;    &quot;deliv_off&quot;        &quot;passenger_on&quot;     &quot;deliv_on&quot;        
-[25] &quot;reject_time&quot;      &quot;app_payment&quot;      &quot;app_payment_cost&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcImhlYWRfbm90X3NlbGZcIiAgICBcImFwcFwiICAgICAgICAgICAgICBcInBheWluZ1wiICAgICAgICAgICBcImxvYW5fbGVuZ3RoXCIgICAgICBcImxvYW5fY29tcFwiICAgICAgICBcIndlZWtseV9wYXlcIiAgICAgIFxuIFs3XSBcImxlc3NfaHJcIiAgICAgICAgICBcImluc3VyZV90aGlyZFwiICAgICBcImluc3VyZV9jb21wXCIgICAgICBcImluc3VyZV9tZWRcIiAgICAgICBcImluc3VyZV9saWZlXCIgICAgICBcImluc3VyZV9ub25lXCIgICAgIFxuWzEzXSBcImRhdGVcIiAgICAgICAgICAgICBcInBldHJvbFwiICAgICAgICAgICBcIm9pbFwiICAgICAgICAgICAgICBcIm9pbF9jb3N0XCIgICAgICAgICBcInBheW1lbnRcIiAgICAgICAgICBcInBheW1lbnRfY29zdFwiICAgIFxuWzE5XSBcInBhc3Nlbmdlcl9vZmZcIiAgICBcImRlbGl2X29mZlwiICAgICAgICBcInBhc3Nlbmdlcl9vblwiICAgICBcImRlbGl2X29uXCIgICAgICAgICBcInJlamVjdF90aW1lXCIgICAgICBcImFwcF9wYXltZW50XCIgICAgIFxuWzI1XSBcImFwcF9wYXltZW50X2Nvc3RcIlxuIn0= -->
+<pre><code> [1] &quot;head_not_self&quot;    &quot;app&quot;              &quot;paying&quot;           &quot;loan_length&quot;      &quot;loan_comp&quot;        &quot;weekly_pay&quot;      
+ [7] &quot;less_hr&quot;          &quot;insure_third&quot;     &quot;insure_comp&quot;      &quot;insure_med&quot;       &quot;insure_life&quot;      &quot;insure_none&quot;     
+[13] &quot;date&quot;             &quot;petrol&quot;           &quot;oil&quot;              &quot;oil_cost&quot;         &quot;payment&quot;          &quot;payment_cost&quot;    
+[19] &quot;passenger_off&quot;    &quot;deliv_off&quot;        &quot;passenger_on&quot;     &quot;deliv_on&quot;         &quot;reject_time&quot;      &quot;app_payment&quot;     
+[25] &quot;app_payment_cost&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1907,6 +1915,14 @@ just_driver$reject_other &lt;- as.integer(just_driver$reject_other)</code></pre>
 <!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogTkFzIGludHJvZHVjZWQgYnkgY29lcmNpb25cbiJ9 -->
 <pre><code>Warning: NAs introduced by coercion</code></pre>
 <!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuanVzdF9kcml2ZXIkc3RhcnRfcHJlIDwtIHdpdGhfdHooeW1kX2htcyhqdXN0X2RyaXZlciRzdGFydF9wcmUpLCBcIlVUQ1wiKVxuanVzdF9kcml2ZXIkZW5kX3ByZSA8LSB3aXRoX3R6KHltZF9obXMoanVzdF9kcml2ZXIkZW5kX3ByZSksIFwiVVRDXCIpXG5gYGAifQ== -->
+<pre class="r"><code>just_driver$start_pre &lt;- with_tz(ymd_hms(just_driver$start_pre), &quot;UTC&quot;)
+just_driver$end_pre &lt;- with_tz(ymd_hms(just_driver$end_pre), &quot;UTC&quot;)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1928,29 +1944,55 @@ just_driver$reject_other &lt;- as.integer(just_driver$reject_other)</code></pre>
 <h1>Appending Datasets</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXBwZW5kZWRfZGYgPC0gYmluZF9yb3dzKGp1c3RfZHJpdmVyLCBncmVlbndoZWVsKVxuYGBgIn0= -->
-<pre class="r"><code>appended_df &lt;- bind_rows(just_driver, greenwheel)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXBwZW5kZWRfZGYgPC0gYmluZF9yb3dzKGp1c3RfZHJpdmVyLCBncmVlbndoZWVsKVxuXG5pZiAobnJvdyhhcHBlbmRlZF9kZikgPT0gbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpKXtcbiAgICBwcmludChcIlRoZSBhcHBlbmRpbmcgd2FzIHN1Y2Nlc3NmdWwhXCIpXG59IGVsc2V7XG4gICAgcHJpbnQoXCJTb21ldGhpbmcgd2VudCB3cm9uZy5cIilcbn1cbmBgYCJ9 -->
+<pre class="r"><code>appended_df &lt;- bind_rows(just_driver, greenwheel)
+
+if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
+    print(&quot;The appending was successful!&quot;)
+} else{
+    print(&quot;Something went wrong.&quot;)
+}</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGFwcGVuZGluZyB3YXMgc3VjY2Vzc2Z1bCFcIlxuIn0= -->
+<pre><code>[1] &quot;The appending was successful!&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="post-sanity-checks" class="section level1">
-<h1>Post Sanity Checks</h1>
-<div id="label-encoding-the-columns" class="section level2">
-<h2>Label Encoding The Columns</h2>
+<div id="label-encoding-the-columns" class="section level1">
+<h1>Label Encoding The Columns</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXBwZW5kZWRfZGYgPC0gYXBwZW5kZWRfZGYgJT4lIFxuICAgIG11dGF0ZShnZW5kZXIgPSBpZmVsc2UoZ2VuZGVyID09IFwiTWFsZVwiLCAxLCAwKSlcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjpbImFwcGVuZGVkX2RmIDwtIGFwcGVuZGVkX2RmICU+JSAiLCIgICAgbXV0YXRlKGdlbmRlciA9IGlmZWxzZShnZW5kZXIgPT0gXCJNYWxlXCIsIDEsIDApLCIsIiAgICAgICAgICAgaGVhZCA9IGlmZWxzZShoZWFkID09IFwiWWVzLCBJIGFtIHRoZSBoZWFkIG9mIHRoZSBob3VzZWhvbGRcIiwgMSwgMCksIiwiICAgICAgICAgICBtYXIgPSBjYXNlX3doZW4oIiwiICAgICAgICAgICAgICAgbWFyID09IFwiTm8sIEkgaGF2ZSBuZXZlciBiZWVuIG1hcnJpZWRcIiB+IDAsIiwiICAgICAgICAgICAgICAgbWFyID09IFwiWWVzLCBJIGFtIGN1cnJlbnRseSBtYXJyaWVkIGFuZCBsaXZpbmcgdG9nZXRoZXJcIiB+IDEsIiwiICAgICAgICAgICAgICAgbWFyID09IFwiTm8sIEkgaGF2ZSBuZXZlciBiZWVuIG1hcnJpZWRcIiB+IDIiLCIgICAgICAgICAgICksIiwiICAgICAgICAgICBlZHVjID0gY2FzZV93aGVuKCIsIiAgICAgICAgICAgICAgIGVkdWMgPT0gXCJEaWQgbm90IGNvbXBsZXRlIHByaW1hcnlcIiB+IDAsIiwiICAgICAgICAgICAgICAgZWR1YyA9PSBcIlByaW1hcnlcIiB+IDEsIiwiICAgICAgICAgICAgICAgZWR1YyA9PSBcIlNlY29uZGFyeSAoRm9ybSA0KVwiIH4gMiwiLCIgICAgICAgICAgICAgICBlZHVjID09IFwiVGVydGlhcnkgKHVuaXZlcnNpdHkgb3IgY2VydGlmaWNhdGUpXCIgfiAzIiwiICAgICAgICAgICApLCIsIiAgICAgICAgICAgKSJdfQ== -->
 <pre class="r"><code>appended_df &lt;- appended_df %&gt;% 
-    mutate(gender = ifelse(gender == &quot;Male&quot;, 1, 0))</code></pre>
+    mutate(gender = ifelse(gender == &quot;Male&quot;, 1, 0),
+           head = ifelse(head == &quot;Yes, I am the head of the household&quot;, 1, 0),
+           mar = case_when(
+               mar == &quot;No, I have never been married&quot; ~ 0,
+               mar == &quot;Yes, I am currently married and living together&quot; ~ 1,
+               mar == &quot;No, I have never been married&quot; ~ 2
+           ),
+           educ = case_when(
+               educ == &quot;Did not complete primary&quot; ~ 0,
+               educ == &quot;Primary&quot; ~ 1,
+               educ == &quot;Secondary (Form 4)&quot; ~ 2,
+               educ == &quot;Tertiary (university or certificate)&quot; ~ 3
+           ),
+           )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud3JpdGUueGxzeChhcHBlbmRlZF9kZiwgZmlsZSA9IFwiL1VzZXJzL25pY2hvbGFzL0Rlc2t0b3AvQ2FsX1BvbHlfU0xPLzUtV29ybGRfQmFuay9EYXRhL21lcmdlZF9kYXRhL2FwcGVuZGVkX2RmLnhsc3hcIilcbmBgYCJ9 -->
+<pre class="r"><code>write.xlsx(appended_df, file = &quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
-</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQXBwZW5kaW5nIERhdGFzZXRzIgpzdWJ0aXRsZTogIkdTRSBTNTgwIgphdXRob3I6ICJFbW9yeSBSYXBhcG9ydCwgS2ltIEhlciwgTmljaG9sYXMgRmVuZyBTY2hhZWZlciIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBTZXQgVXAKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KHJlYWR4bCkKYGBgCgojIExvYWRpbmcgRGF0YXNldHMKYGBge3J9CmdyZWVud2hlZWwgPC0gcmVhZF94bHN4KCIvVXNlcnMvbmljaG9sYXMvRGVza3RvcC9DYWxfUG9seV9TTE8vNS1Xb3JsZF9CYW5rL0RhdGEvbWVyZ2VkX2RhdGEvZ3dfZmlsdGVyZWQueGxzeCIpCmp1c3RfZHJpdmVyIDwtIHJlYWRfeGxzeCgiL1VzZXJzL25pY2hvbGFzL0Rlc2t0b3AvQ2FsX1BvbHlfU0xPLzUtV29ybGRfQmFuay9EYXRhL21lcmdlZF9kYXRhL2ljZV9maWx0ZXJlZC54bHN4IikKYGBgCgojIFByZSBTYW5pdHkgQ2hlY2tzCgojIyBJZGVudGlmaWNhdGlvbiBWYXJpYWJsZQpgYGB7cn0KZ3JlZW53aGVlbCRncmVlbndoZWVsX2R1bW15IDwtIDEKanVzdF9kcml2ZXIkZ3JlZW53aGVlbF9kdW1teSA8LSAwCmBgYAoKIyMgQ29sdW1uIE5hbWVzCmBgYHtyfQppZiAoaWRlbnRpY2FsKGNvbG5hbWVzKGdyZWVud2hlZWwpLCBjb2xuYW1lcyhqdXN0X2RyaXZlcikpID09IFRSVUUpewogICAgcHJpbnQoIlRoZSBjb2x1bW4gbmFtZXMgb2YgYm90aCBkYXRhc2V0cyBhcmUgdGhlIHNhbWUuIikKfSBlbHNlewogICAgcHJpbnQoIlRoZSBjb2x1bW4gbmFtZXMgb2YgdGhlIGRhdGFzZXRzIGRvbid0IG1hdGNoIikKfQpgYGAKCmBgYHtyfQpzZXRkaWZmKGNvbG5hbWVzKGdyZWVud2hlZWwpLCBjb2xuYW1lcyhqdXN0X2RyaXZlcikpCmBgYAoKYGBge3J9CnNldGRpZmYoY29sbmFtZXMoanVzdF9kcml2ZXIpLCBjb2xuYW1lcyhncmVlbndoZWVsKSkKYGBgCgojIyMgUXVlc3Rpb25zCgoqIERvIHdlIG5lZWQgYHN0YXJ0X3hgLCBgZW5kX3hgLCAuLi4gZm9yIEdyZWVuV2hlZWwgYW5kIGBzdGFydGAgYW5kIGBlbmRgIGZvciBKdXN0IERyaXZlcj8KCiogRG9lcyBpdCBtYXR0ZXIgd2hvIGlzIGhlYWQgb2YgaG91c2Vob2xkIGlmIG5vdCB0aGUgZHJpdmVycyB0aGVtc2VsdmVzPyBGb3IgdGhlIEp1c3QgRHJpdmVyIGRhdGFzZXQgd2UgaGF2ZSBpbmZvcm1hdGlvbiBvbiB3aG8gdGhlIGhlYWQgb2YgaG91c2Vob2xkIGlzOyBob3dldmVyLCBmb3IgdGhlIEdyZWVuV2hlZWwgZGF0YXNldCB3ZSBvbmx5IGhhdmUgZGF0YSBvbmx5IHdoZXRoZXIgdGhlIGRyaXZlciBpcyB0aGUgaGVhZCBvZiB0aGUgaG91c2Vob2xkIG9yIG5vdC4gSWYgd2UgZG9uJ3QgbmVlZCB0aGF0IHNwZWNpZmljIGluZm9ybWF0aW9uLCB3ZSBjYW4ganVzdCBjb21iaW5lIHRoZSB0d28gY29sdW1ucyBpbnRvIG9uZSBhbmQgdHJhbnNmb3JtIGl0IGludG8gYSBiaW5hcnkgZHVtbXkgdmFyaWFibGUgKDEgaWYgaGVhZCBvZiBob3VzZWhvbGQgYW5kIDAgaWYgbm90KS4KCiogSW5zdXJhbmNlIGRhdGEgZm9yIGJvdGggZ3JvdXBzIGlzIGRpZmZlcmVudCAoZm9yIEdyZWVuV2hlZWxzIGl0IGlzICJZZXMsIEkgaGF2ZSBpbnN1cmFuY2UiIGFuZCAiTm8sIEkgZG9uJ3QuIiBhbmQgZm9yIEp1c3QgRHJpdmVyIHRoZSBzcGVjaWZpYyBpbnN1cmFuY2UpLiBTaG91bGQgSSBqdXN0IGR1bW15LWVuY29kZSBpdCBhcyAxID0gZHJpdmVyIGhhcyBpbnN1cmFuY2UgYW5kIDAgPSBkcml2ZXIgZG9lcyBub3QgaGF2ZSBpbnN1cmFuY2U/CgojIyBSZW5hbWluZyBDb2x1bW5zCmBgYHtyfQpncmVlbndoZWVsIDwtIGdyZWVud2hlZWwgJT4lIAogICAgcmVuYW1lKGVkdWMgPSBlZHUsCiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBzYWxhcnksCiAgICAgICAgICAgY29udGVudCA9IGZsZXgsCiAgICAgICAgICAgc3RhcnRfcHJlID0gc3RhcnRfeCwKICAgICAgICAgICBlbmRfcHJlID0gZW5kX3gsCiAgICAgICAgICAgc3RhcnRfZGFpbHkgPSBzdGFydF95LAogICAgICAgICAgIGVuZF9kYWlseSA9IGVuZF95KSAlPiUgCiAgICBkcGx5cjo6c2VsZWN0KC1mYXJfaG9tZSwgLXVuc2FmZSwgLXByaWNlX2Rpc3QsIC1jYXJkKQoKanVzdF9kcml2ZXIgPC0ganVzdF9kcml2ZXIgJT4lIAogICAgcmVuYW1lKGVkdWMgPSBlZGMsCiAgICAgICAgICAgb3RoZXJfaW5jb21lID0gaW5jb21lX290aGVyLAogICAgICAgICAgIG90aGVyX2luY29tZV8xID0gaW5jb21lX290aGVyXzEsCiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBpbmNvbWVfYm9kYSwKICAgICAgICAgICBzdGFydF9wcmUgPSBzdGFydCwKICAgICAgICAgICBlbmRfcHJlID0gZW5kKQpgYGAKCmBgYHtyfQpzZXRkaWZmKGNvbG5hbWVzKGdyZWVud2hlZWwpLCBjb2xuYW1lcyhqdXN0X2RyaXZlcikpCmBgYAoKYGBge3J9CnNldGRpZmYoY29sbmFtZXMoanVzdF9kcml2ZXIpLCBjb2xuYW1lcyhncmVlbndoZWVsKSkKYGBgCgpgYGB7cn0KZ3JlZW53aGVlbCRyZWplY3Rfb3RoZXIgPC0gYXMuaW50ZWdlcihncmVlbndoZWVsJHJlamVjdF9vdGhlcikKanVzdF9kcml2ZXIkcmVqZWN0X290aGVyIDwtIGFzLmludGVnZXIoanVzdF9kcml2ZXIkcmVqZWN0X290aGVyKQpgYGAKCiMjIE51bWJlciBvZiBDb2x1bW5zCmBgYHtyfQpjYXQoIlRoZSBhcHBlbmRlZCBkYXRhc2V0IHNob3VsZCBoYXZlIiwgbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpLCAicm93cy4iKQpgYGAKCiMgQXBwZW5kaW5nIERhdGFzZXRzCmBgYHtyfQphcHBlbmRlZF9kZiA8LSBiaW5kX3Jvd3MoanVzdF9kcml2ZXIsIGdyZWVud2hlZWwpCgppZiAobnJvdyhhcHBlbmRlZF9kZikgPT0gbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpKXsKICAgIHByaW50KCJUaGUgYXBwZW5kaW5nIHdhcyBzdWNjZXNzZnVsISIpCn0gZWxzZXsKICAgIHByaW50KCJTb21ldGhpbmcgd2VudCB3cm9uZy4iKQp9CmBgYAoKIyBQb3N0IFNhbml0eSBDaGVja3MKCiMjIExhYmVsIEVuY29kaW5nIFRoZSBDb2x1bW5zCmBgYHtyfQphcHBlbmRlZF9kZiA8LSBhcHBlbmRlZF9kZiAlPiUgCiAgICBtdXRhdGUoZ2VuZGVyID0gaWZlbHNlKGdlbmRlciA9PSAiTWFsZSIsIDEsIDApKQpgYGAKCgoKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQXBwZW5kaW5nIERhdGFzZXRzIgpzdWJ0aXRsZTogIkdTRSBTNTgwIgphdXRob3I6ICJFbW9yeSBSYXBhcG9ydCwgS2ltIEhlciwgTmljaG9sYXMgRmVuZyBTY2hhZWZlciIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBTZXQgVXAKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KHJlYWR4bCkKbGlicmFyeShsdWJyaWRhdGUpCmxpYnJhcnkob3Blbnhsc3gpCmBgYAoKIyBMb2FkaW5nIERhdGFzZXRzCmBgYHtyfQpncmVlbndoZWVsIDwtIHJlYWRfeGxzeCgiL1VzZXJzL25pY2hvbGFzL0Rlc2t0b3AvQ2FsX1BvbHlfU0xPLzUtV29ybGRfQmFuay9EYXRhL21lcmdlZF9kYXRhL2d3X2ZpbHRlcmVkLnhsc3giKQpqdXN0X2RyaXZlciA8LSByZWFkX3hsc3goIi9Vc2Vycy9uaWNob2xhcy9EZXNrdG9wL0NhbF9Qb2x5X1NMTy81LVdvcmxkX0JhbmsvRGF0YS9tZXJnZWRfZGF0YS9pY2VfZmlsdGVyZWQueGxzeCIpCmBgYAoKIyBQcmUgU2FuaXR5IENoZWNrcwoKIyMgSWRlbnRpZmljYXRpb24gVmFyaWFibGUKYGBge3J9CmdyZWVud2hlZWwkZ3JlZW53aGVlbF9kdW1teSA8LSAxCmp1c3RfZHJpdmVyJGdyZWVud2hlZWxfZHVtbXkgPC0gMApgYGAKCiMjIENvbHVtbiBOYW1lcwpgYGB7cn0KaWYgKGlkZW50aWNhbChjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKSA9PSBUUlVFKXsKICAgIHByaW50KCJUaGUgY29sdW1uIG5hbWVzIG9mIGJvdGggZGF0YXNldHMgYXJlIHRoZSBzYW1lLiIpCn0gZWxzZXsKICAgIHByaW50KCJUaGUgY29sdW1uIG5hbWVzIG9mIHRoZSBkYXRhc2V0cyBkb24ndCBtYXRjaCIpCn0KYGBgCgpgYGB7cn0Kc2V0ZGlmZihjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKQpgYGAKCmBgYHtyfQpzZXRkaWZmKGNvbG5hbWVzKGp1c3RfZHJpdmVyKSwgY29sbmFtZXMoZ3JlZW53aGVlbCkpCmBgYAoKIyMjIFF1ZXN0aW9ucwoKKiBEbyB3ZSBuZWVkIGBzdGFydF94YCwgYGVuZF94YCwgLi4uIGZvciBHcmVlbldoZWVsIGFuZCBgc3RhcnRgIGFuZCBgZW5kYCBmb3IgSnVzdCBEcml2ZXI/CgoqIERvZXMgaXQgbWF0dGVyIHdobyBpcyBoZWFkIG9mIGhvdXNlaG9sZCBpZiBub3QgdGhlIGRyaXZlcnMgdGhlbXNlbHZlcz8gRm9yIHRoZSBKdXN0IERyaXZlciBkYXRhc2V0IHdlIGhhdmUgaW5mb3JtYXRpb24gb24gd2hvIHRoZSBoZWFkIG9mIGhvdXNlaG9sZCBpczsgaG93ZXZlciwgZm9yIHRoZSBHcmVlbldoZWVsIGRhdGFzZXQgd2Ugb25seSBoYXZlIGRhdGEgb25seSB3aGV0aGVyIHRoZSBkcml2ZXIgaXMgdGhlIGhlYWQgb2YgdGhlIGhvdXNlaG9sZCBvciBub3QuIElmIHdlIGRvbid0IG5lZWQgdGhhdCBzcGVjaWZpYyBpbmZvcm1hdGlvbiwgd2UgY2FuIGp1c3QgY29tYmluZSB0aGUgdHdvIGNvbHVtbnMgaW50byBvbmUgYW5kIHRyYW5zZm9ybSBpdCBpbnRvIGEgYmluYXJ5IGR1bW15IHZhcmlhYmxlICgxIGlmIGhlYWQgb2YgaG91c2Vob2xkIGFuZCAwIGlmIG5vdCkuCgoqIEluc3VyYW5jZSBkYXRhIGZvciBib3RoIGdyb3VwcyBpcyBkaWZmZXJlbnQgKGZvciBHcmVlbldoZWVscyBpdCBpcyAiWWVzLCBJIGhhdmUgaW5zdXJhbmNlIiBhbmQgIk5vLCBJIGRvbid0LiIgYW5kIGZvciBKdXN0IERyaXZlciB0aGUgc3BlY2lmaWMgaW5zdXJhbmNlKS4gU2hvdWxkIEkganVzdCBkdW1teS1lbmNvZGUgaXQgYXMgMSA9IGRyaXZlciBoYXMgaW5zdXJhbmNlIGFuZCAwID0gZHJpdmVyIGRvZXMgbm90IGhhdmUgaW5zdXJhbmNlPwoKIyMgUmVuYW1pbmcgQ29sdW1ucwpgYGB7cn0KZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSAKICAgIHJlbmFtZShlZHVjID0gZWR1LAogICAgICAgICAgIGRhaWx5X2luY29tZV9ib2RhID0gc2FsYXJ5LAogICAgICAgICAgIGNvbnRlbnQgPSBmbGV4LAogICAgICAgICAgIHN0YXJ0X3ByZSA9IHN0YXJ0X3gsCiAgICAgICAgICAgZW5kX3ByZSA9IGVuZF94LAogICAgICAgICAgIHN0YXJ0X2RhaWx5ID0gc3RhcnRfeSwKICAgICAgICAgICBlbmRfZGFpbHkgPSBlbmRfeSkgJT4lIAogICAgZHBseXI6OnNlbGVjdCgtZmFyX2hvbWUsIC11bnNhZmUsIC1wcmljZV9kaXN0LCAtY2FyZCkKCmp1c3RfZHJpdmVyIDwtIGp1c3RfZHJpdmVyICU+JSAKICAgIHJlbmFtZShlZHVjID0gZWRjLAogICAgICAgICAgIG90aGVyX2luY29tZSA9IGluY29tZV9vdGhlciwKICAgICAgICAgICBvdGhlcl9pbmNvbWVfMSA9IGluY29tZV9vdGhlcl8xLAogICAgICAgICAgIGRhaWx5X2luY29tZV9ib2RhID0gaW5jb21lX2JvZGEsCiAgICAgICAgICAgc3RhcnRfcHJlID0gc3RhcnQsCiAgICAgICAgICAgZW5kX3ByZSA9IGVuZCkKYGBgCgpgYGB7cn0Kc2V0ZGlmZihjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKQpgYGAKCmBgYHtyfQpzZXRkaWZmKGNvbG5hbWVzKGp1c3RfZHJpdmVyKSwgY29sbmFtZXMoZ3JlZW53aGVlbCkpCmBgYAoKYGBge3J9CmdyZWVud2hlZWwkcmVqZWN0X290aGVyIDwtIGFzLmludGVnZXIoZ3JlZW53aGVlbCRyZWplY3Rfb3RoZXIpCmp1c3RfZHJpdmVyJHJlamVjdF9vdGhlciA8LSBhcy5pbnRlZ2VyKGp1c3RfZHJpdmVyJHJlamVjdF9vdGhlcikKYGBgCgpgYGB7cn0KanVzdF9kcml2ZXIkc3RhcnRfcHJlIDwtIHdpdGhfdHooeW1kX2htcyhqdXN0X2RyaXZlciRzdGFydF9wcmUpLCAiVVRDIikKanVzdF9kcml2ZXIkZW5kX3ByZSA8LSB3aXRoX3R6KHltZF9obXMoanVzdF9kcml2ZXIkZW5kX3ByZSksICJVVEMiKQpgYGAKCiMjIE51bWJlciBvZiBDb2x1bW5zCmBgYHtyfQpjYXQoIlRoZSBhcHBlbmRlZCBkYXRhc2V0IHNob3VsZCBoYXZlIiwgbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpLCAicm93cy4iKQpgYGAKCiMgQXBwZW5kaW5nIERhdGFzZXRzCmBgYHtyfQphcHBlbmRlZF9kZiA8LSBiaW5kX3Jvd3MoanVzdF9kcml2ZXIsIGdyZWVud2hlZWwpCgppZiAobnJvdyhhcHBlbmRlZF9kZikgPT0gbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpKXsKICAgIHByaW50KCJUaGUgYXBwZW5kaW5nIHdhcyBzdWNjZXNzZnVsISIpCn0gZWxzZXsKICAgIHByaW50KCJTb21ldGhpbmcgd2VudCB3cm9uZy4iKQp9CmBgYAoKIyBMYWJlbCBFbmNvZGluZyBUaGUgQ29sdW1ucwpgYGB7ciwgZXZhbD1GQUxTRX0KYXBwZW5kZWRfZGYgPC0gYXBwZW5kZWRfZGYgJT4lIAogICAgbXV0YXRlKGdlbmRlciA9IGlmZWxzZShnZW5kZXIgPT0gIk1hbGUiLCAxLCAwKSwKICAgICAgICAgICBoZWFkID0gaWZlbHNlKGhlYWQgPT0gIlllcywgSSBhbSB0aGUgaGVhZCBvZiB0aGUgaG91c2Vob2xkIiwgMSwgMCksCiAgICAgICAgICAgbWFyID0gY2FzZV93aGVuKAogICAgICAgICAgICAgICBtYXIgPT0gIk5vLCBJIGhhdmUgbmV2ZXIgYmVlbiBtYXJyaWVkIiB+IDAsCiAgICAgICAgICAgICAgIG1hciA9PSAiWWVzLCBJIGFtIGN1cnJlbnRseSBtYXJyaWVkIGFuZCBsaXZpbmcgdG9nZXRoZXIiIH4gMSwKICAgICAgICAgICAgICAgbWFyID09ICJObywgSSBoYXZlIG5ldmVyIGJlZW4gbWFycmllZCIgfiAyCiAgICAgICAgICAgKSwKICAgICAgICAgICBlZHVjID0gY2FzZV93aGVuKAogICAgICAgICAgICAgICBlZHVjID09ICJEaWQgbm90IGNvbXBsZXRlIHByaW1hcnkiIH4gMCwKICAgICAgICAgICAgICAgZWR1YyA9PSAiUHJpbWFyeSIgfiAxLAogICAgICAgICAgICAgICBlZHVjID09ICJTZWNvbmRhcnkgKEZvcm0gNCkiIH4gMiwKICAgICAgICAgICAgICAgZWR1YyA9PSAiVGVydGlhcnkgKHVuaXZlcnNpdHkgb3IgY2VydGlmaWNhdGUpIiB+IDMKICAgICAgICAgICApLAogICAgICAgICAgICkKYGBgCgpgYGB7cn0Kd3JpdGUueGxzeChhcHBlbmRlZF9kZiwgZmlsZSA9ICIvVXNlcnMvbmljaG9sYXMvRGVza3RvcC9DYWxfUG9seV9TTE8vNS1Xb3JsZF9CYW5rL0RhdGEvbWVyZ2VkX2RhdGEvYXBwZW5kZWRfZGYueGxzeCIpCmBgYAoKCgoKCg==</div>
 
 
 
