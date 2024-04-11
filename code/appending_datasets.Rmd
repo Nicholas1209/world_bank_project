@@ -44,14 +44,6 @@ setdiff(colnames(greenwheel), colnames(just_driver))
 setdiff(colnames(just_driver), colnames(greenwheel))
 ```
 
-### Questions
-
-* Do we need `start_x`, `end_x`, ... for GreenWheel and `start` and `end` for Just Driver?
-
-* Does it matter who is head of household if not the drivers themselves? For the Just Driver dataset we have information on who the head of household is; however, for the GreenWheel dataset we only have data only whether the driver is the head of the household or not. If we don't need that specific information, we can just combine the two columns into one and transform it into a binary dummy variable (1 if head of household and 0 if not).
-
-* Insurance data for both groups is different (for GreenWheels it is "Yes, I have insurance" and "No, I don't." and for Just Driver the specific insurance). Should I just dummy-encode it as 1 = driver has insurance and 0 = driver does not have insurance?
-
 ## Renaming Columns
 ```{r}
 greenwheel <- greenwheel %>% 
@@ -61,8 +53,9 @@ greenwheel <- greenwheel %>%
            start_pre = start_x,
            end_pre = end_x,
            start_daily = start_y,
-           end_daily = end_y) %>% 
-    dplyr::select(-far_home, -unsafe, -price_dist, -card)
+           end_daily = end_y,
+           time_work_prop = time_work_sample) %>% 
+    dplyr::select(-far_home, -unsafe, -price_dist, -card, -other_income_1)
 
 just_driver <- just_driver %>% 
     rename(educ = edc,
@@ -70,7 +63,9 @@ just_driver <- just_driver %>%
            other_income_1 = income_other_1,
            daily_income_boda = income_boda,
            start_pre = start,
-           end_pre = end)
+           end_pre = end,
+           time_work_prop = time_work_sample) %>% 
+    select(-less_hr, -other_income_1)
 ```
 
 ```{r}
