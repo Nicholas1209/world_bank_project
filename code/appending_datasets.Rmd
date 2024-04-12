@@ -55,7 +55,7 @@ greenwheel <- greenwheel %>%
            start_daily = start_y,
            end_daily = end_y,
            time_work_prop = time_work_sample) %>% 
-    dplyr::select(-far_home, -unsafe, -price_dist, -card, -other_income_1)
+    dplyr::select(-other_income_1)
 
 just_driver <- just_driver %>% 
     rename(educ = edc,
