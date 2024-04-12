@@ -27,6 +27,13 @@ greenwheel$greenwheel_dummy <- 1
 just_driver$greenwheel_dummy <- 0
 ```
 
+## Merge Variable
+```{r}
+greenwheel$merge <- apply(greenwheel[c("salary", "home_labor", "leisure", "sleep")], 1, function(x) if (all(is.na(x))) 0 else 1)
+
+just_driver$merge <- 1
+```
+
 ## Column Names
 ```{r}
 if (identical(colnames(greenwheel), colnames(just_driver)) == TRUE){
@@ -121,6 +128,7 @@ appended_df <- appended_df %>%
            )
 ```
 
+# Exporting Appended Dataset
 ```{r}
 write.xlsx(appended_df, file = "/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx")
 ```
