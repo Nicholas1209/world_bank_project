@@ -1759,9 +1759,11 @@ display: none;
 <h1>Set Up</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KHJlYWR4bClcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KHJlYWR4bClcbmxpYnJhcnkobHVicmlkYXRlKVxubGlicmFyeShvcGVueGxzeClcbmBgYCJ9 -->
 <pre class="r"><code>library(tidyverse)
-library(readxl)</code></pre>
+library(readxl)
+library(lubridate)
+library(openxlsx)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1770,9 +1772,9 @@ library(readxl)</code></pre>
 <h1>Loading Datasets</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCA8LSByZWFkX3hsc3goXCIvVXNlcnMvbmljaG9sYXMvRGVza3RvcC9DYWxfUG9seV9TTE8vNS1Xb3JsZF9CYW5rL3dvcmxkX2JhbmtfcHJvamVjdC9kYXRhL2d3X2ZpbHRlcmVkLnhsc3hcIilcbmp1c3RfZHJpdmVyIDwtIHJlYWRfeGxzeChcIi9Vc2Vycy9uaWNob2xhcy9EZXNrdG9wL0NhbF9Qb2x5X1NMTy81LVdvcmxkX0Jhbmsvd29ybGRfYmFua19wcm9qZWN0L2RhdGEvaWNlX2ZpbHRlcmVkLnhsc3hcIilcbmBgYCJ9 -->
-<pre class="r"><code>greenwheel &lt;- read_xlsx(&quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/gw_filtered.xlsx&quot;)
-just_driver &lt;- read_xlsx(&quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/ice_filtered.xlsx&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCA8LSByZWFkX3hsc3goXCIvVXNlcnMvbmljaG9sYXMvRGVza3RvcC9DYWxfUG9seV9TTE8vNS1Xb3JsZF9CYW5rL0RhdGEvbWVyZ2VkX2RhdGEvZ3dfZmlsdGVyZWQueGxzeFwiKVxuanVzdF9kcml2ZXIgPC0gcmVhZF94bHN4KFwiL1VzZXJzL25pY2hvbGFzL0Rlc2t0b3AvQ2FsX1BvbHlfU0xPLzUtV29ybGRfQmFuay9EYXRhL21lcmdlZF9kYXRhL2ljZV9maWx0ZXJlZC54bHN4XCIpXG5gYGAifQ== -->
+<pre class="r"><code>greenwheel &lt;- read_xlsx(&quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/gw_filtered.xlsx&quot;)
+just_driver &lt;- read_xlsx(&quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/ice_filtered.xlsx&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1786,6 +1788,18 @@ just_driver &lt;- read_xlsx(&quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_B
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCRncmVlbndoZWVsX2R1bW15IDwtIDFcbmp1c3RfZHJpdmVyJGdyZWVud2hlZWxfZHVtbXkgPC0gMFxuYGBgIn0= -->
 <pre class="r"><code>greenwheel$greenwheel_dummy &lt;- 1
 just_driver$greenwheel_dummy &lt;- 0</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="merge-variable" class="section level2">
+<h2>Merge Variable</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCRtZXJnZSA8LSBhcHBseShncmVlbndoZWVsW2MoXCJzYWxhcnlcIiwgXCJob21lX2xhYm9yXCIsIFwibGVpc3VyZVwiLCBcInNsZWVwXCIpXSwgMSwgZnVuY3Rpb24oeCkgaWYgKGFsbChpcy5uYSh4KSkpIDAgZWxzZSAxKVxuXG5qdXN0X2RyaXZlciRtZXJnZSA8LSAxXG5gYGAifQ== -->
+<pre class="r"><code>greenwheel$merge &lt;- apply(greenwheel[c(&quot;salary&quot;, &quot;home_labor&quot;, &quot;leisure&quot;, &quot;sleep&quot;)], 1, function(x) if (all(is.na(x))) 0 else 1)
+
+just_driver$merge &lt;- 1</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1811,10 +1825,11 @@ just_driver$greenwheel_dummy &lt;- 0</code></pre>
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0ZGlmZihjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKVxuYGBgIn0= -->
 <pre class="r"><code>setdiff(colnames(greenwheel), colnames(just_driver))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcInN0YXJ0X3hcIiAgICAgICAgXCJlbmRfeFwiICAgICAgICAgIFwibmFtZVwiICAgICAgICAgICBcInNhbGFyeVwiICAgICAgICAgXCJlZHVcIiAgICAgICAgICAgIFwib3RoZXJfYXBwc1wiICAgICBcImJpa2VcIiAgICAgICAgICBcbiBbOF0gXCJ3aHlcIiAgICAgICAgICAgIFwiZmxleFwiICAgICAgICAgICBcImtub3dcIiAgICAgICAgICAgXCJwaG9uZVwiICAgICAgICAgIFwic3RhcnRfeVwiICAgICAgICBcImVuZF95XCIgICAgICAgICAgXCJnd1wiICAgICAgICAgICAgXG5bMTVdIFwib3RoZXJfd29ya1wiICAgICBcIm90aGVyX2luY29tZVwiICAgXCJvdGhlcl9pbmNvbWVfMVwiIFwiZmFyX2hvbWVcIiAgICAgICBcInVuc2FmZVwiICAgICAgICAgXCJwcmljZV9kaXN0XCIgICAgIFwiY2FyZFwiICAgICAgICAgIFxuIn0= -->
-<pre><code> [1] &quot;start_x&quot;        &quot;end_x&quot;          &quot;name&quot;           &quot;salary&quot;         &quot;edu&quot;            &quot;other_apps&quot;     &quot;bike&quot;          
- [8] &quot;why&quot;            &quot;flex&quot;           &quot;know&quot;           &quot;phone&quot;          &quot;start_y&quot;        &quot;end_y&quot;          &quot;gw&quot;            
-[15] &quot;other_work&quot;     &quot;other_income&quot;   &quot;other_income_1&quot; &quot;far_home&quot;       &quot;unsafe&quot;         &quot;price_dist&quot;     &quot;card&quot;          </code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcInN0YXJ0X3hcIiAgICAgICAgXCJlbmRfeFwiICAgICAgICAgIFwibmFtZVwiICAgICAgICAgICBcInNhbGFyeVwiICAgICAgICAgXCJlZHVcIiAgICAgICAgICAgIFwib3RoZXJfYXBwc1wiICAgIFxuIFs3XSBcImJpa2VcIiAgICAgICAgICAgXCJ3aHlcIiAgICAgICAgICAgIFwiZmxleFwiICAgICAgICAgICBcImtub3dcIiAgICAgICAgICAgXCJwaG9uZVwiICAgICAgICAgIFwic3RhcnRfeVwiICAgICAgIFxuWzEzXSBcImVuZF95XCIgICAgICAgICAgXCJnd1wiICAgICAgICAgICAgIFwib3RoZXJfd29ya1wiICAgICBcIm90aGVyX2luY29tZVwiICAgXCJvdGhlcl9pbmNvbWVfMVwiIFwiZmFyX2hvbWVcIiAgICAgIFxuWzE5XSBcInVuc2FmZVwiICAgICAgICAgXCJwcmljZV9kaXN0XCIgICAgIFwiY2FyZFwiICAgICAgICAgIFxuIn0= -->
+<pre><code> [1] &quot;start_x&quot;        &quot;end_x&quot;          &quot;name&quot;           &quot;salary&quot;         &quot;edu&quot;            &quot;other_apps&quot;    
+ [7] &quot;bike&quot;           &quot;why&quot;            &quot;flex&quot;           &quot;know&quot;           &quot;phone&quot;          &quot;start_y&quot;       
+[13] &quot;end_y&quot;          &quot;gw&quot;             &quot;other_work&quot;     &quot;other_income&quot;   &quot;other_income_1&quot; &quot;far_home&quot;      
+[19] &quot;unsafe&quot;         &quot;price_dist&quot;     &quot;card&quot;          </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1833,59 +1848,88 @@ just_driver$greenwheel_dummy &lt;- 0</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<div id="questions" class="section level3">
-<h3>Questions</h3>
-<ul>
-<li><p>Do we need <code>start_x</code>, <code>end_x</code>, … for
-GreenWheel and <code>start</code> and <code>end</code> for Just
-Driver?</p></li>
-<li><p>Does it matter who is head of household if not the drivers
-themselves? For the Just Driver dataset we have information on who the
-head of household is; however, for the GreenWheel dataset we only have
-data only whether the driver is the head of the household or not. If we
-don’t need that specific information, we can just combine the two
-columns into one and transform it into a binary dummy variable (1 if
-head of household and 0 if not).</p></li>
-</ul>
-</div>
 </div>
 <div id="renaming-columns" class="section level2">
 <h2>Renaming Columns</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSBcbiAgICByZW5hbWUoZWR1ID0gZWR1YyxcbiAgICAgICAgICAgKVxuXG5qdXN0X2RyaXZlciA8LSBqdXN0X2RyaXZlciAlPiUgXG4gICAgcmVuYW1lKGVkYyA9IGVkdWMsXG4gICAgICAgICAgIGluY29tZV9vdGhlciA9IG90aGVyX2luY29tZSxcbiAgICAgICAgICAgaW5jb21lX290aGVyXzEgPSBvdGhlcl9pbmNvbWVfMSlcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSBcbiAgICByZW5hbWUoZWR1YyA9IGVkdSxcbiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBzYWxhcnksXG4gICAgICAgICAgIGNvbnRlbnQgPSBmbGV4LFxuICAgICAgICAgICBzdGFydF9wcmUgPSBzdGFydF94LFxuICAgICAgICAgICBlbmRfcHJlID0gZW5kX3gsXG4gICAgICAgICAgIHN0YXJ0X2RhaWx5ID0gc3RhcnRfeSxcbiAgICAgICAgICAgZW5kX2RhaWx5ID0gZW5kX3ksXG4gICAgICAgICAgIHRpbWVfd29ya19wcm9wID0gdGltZV93b3JrX3NhbXBsZSkgJT4lIFxuICAgIGRwbHlyOjpzZWxlY3QoLW90aGVyX2luY29tZV8xKVxuXG5qdXN0X2RyaXZlciA8LSBqdXN0X2RyaXZlciAlPiUgXG4gICAgcmVuYW1lKGVkdWMgPSBlZGMsXG4gICAgICAgICAgIG90aGVyX2luY29tZSA9IGluY29tZV9vdGhlcixcbiAgICAgICAgICAgb3RoZXJfaW5jb21lXzEgPSBpbmNvbWVfb3RoZXJfMSxcbiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBpbmNvbWVfYm9kYSxcbiAgICAgICAgICAgc3RhcnRfcHJlID0gc3RhcnQsXG4gICAgICAgICAgIGVuZF9wcmUgPSBlbmQsXG4gICAgICAgICAgIHRpbWVfd29ya19wcm9wID0gdGltZV93b3JrX3NhbXBsZSkgJT4lIFxuICAgIHNlbGVjdCgtbGVzc19ociwgLW90aGVyX2luY29tZV8xKVxuYGBgIn0= -->
 <pre class="r"><code>greenwheel &lt;- greenwheel %&gt;% 
-    rename(edu = educ,
-           )
+    rename(educ = edu,
+           daily_income_boda = salary,
+           content = flex,
+           start_pre = start_x,
+           end_pre = end_x,
+           start_daily = start_y,
+           end_daily = end_y,
+           time_work_prop = time_work_sample) %&gt;% 
+    dplyr::select(-other_income_1)
 
 just_driver &lt;- just_driver %&gt;% 
-    rename(edc = educ,
-           income_other = other_income,
-           income_other_1 = other_income_1)</code></pre>
+    rename(educ = edc,
+           other_income = income_other,
+           other_income_1 = income_other_1,
+           daily_income_boda = income_boda,
+           start_pre = start,
+           end_pre = end,
+           time_work_prop = time_work_sample) %&gt;% 
+    select(-less_hr, -other_income_1)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCRzdGFydF94ICU+JSBcbiAgICBoZWFkKClcbmBgYCJ9 -->
-<pre class="r"><code>greenwheel$start_x %&gt;% 
-    head()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0ZGlmZihjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKVxuYGBgIn0= -->
+<pre class="r"><code>setdiff(colnames(greenwheel), colnames(just_driver))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiMjAyNC0wMi0wNyAxNDowMTo0NiBVVENcIiBcIjIwMjQtMDItMDcgMTQ6MDE6NDYgVVRDXCIgXCIyMDI0LTAyLTA3IDE0OjAxOjQ2IFVUQ1wiIFwiMjAyNC0wMi0wNyAxNDowMTo0NiBVVENcIlxuWzVdIFwiMjAyNC0wMi0wNyAxNDowMTo0NiBVVENcIiBcIjIwMjQtMDItMDcgMTQ6MDE6NDYgVVRDXCJcbiJ9 -->
-<pre><code>[1] &quot;2024-02-07 14:01:46 UTC&quot; &quot;2024-02-07 14:01:46 UTC&quot; &quot;2024-02-07 14:01:46 UTC&quot; &quot;2024-02-07 14:01:46 UTC&quot;
-[5] &quot;2024-02-07 14:01:46 UTC&quot; &quot;2024-02-07 14:01:46 UTC&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcIm5hbWVcIiAgICAgICAgXCJvdGhlcl9hcHBzXCIgIFwiYmlrZVwiICAgICAgICBcIndoeVwiICAgICAgICAgXCJrbm93XCIgICAgICAgIFwicGhvbmVcIiAgICAgICBcInN0YXJ0X2RhaWx5XCIgXCJlbmRfZGFpbHlcIiAgXG4gWzldIFwiZ3dcIiAgICAgICAgICBcIm90aGVyX3dvcmtcIiAgXCJmYXJfaG9tZVwiICAgIFwidW5zYWZlXCIgICAgICBcInByaWNlX2Rpc3RcIiAgXCJjYXJkXCIgICAgICAgXG4ifQ== -->
+<pre><code> [1] &quot;name&quot;        &quot;other_apps&quot;  &quot;bike&quot;        &quot;why&quot;         &quot;know&quot;        &quot;phone&quot;       &quot;start_daily&quot; &quot;end_daily&quot;  
+ [9] &quot;gw&quot;          &quot;other_work&quot;  &quot;far_home&quot;    &quot;unsafe&quot;      &quot;price_dist&quot;  &quot;card&quot;       </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCRzdGFydF95ICU+JSBcbiAgICBoZWFkKClcbmBgYCJ9 -->
-<pre class="r"><code>greenwheel$start_y %&gt;% 
-    head()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0ZGlmZihjb2xuYW1lcyhqdXN0X2RyaXZlciksIGNvbG5hbWVzKGdyZWVud2hlZWwpKVxuYGBgIn0= -->
+<pre class="r"><code>setdiff(colnames(just_driver), colnames(greenwheel))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiMjAyNC0wMi0wNyAxNDowODowOSBVVENcIiBcIjIwMjQtMDItMTEgMjE6MzY6MjEgVVRDXCIgXCIyMDI0LTAyLTExIDIxOjQxOjM5IFVUQ1wiIFwiMjAyNC0wMi0wNyAxNDowNTo1MiBVVENcIlxuWzVdIFwiMjAyNC0wMi0wOCAyMjo1NjoyMyBVVENcIiBcIjIwMjQtMDItMDkgMjM6MzY6MDkgVVRDXCJcbiJ9 -->
-<pre><code>[1] &quot;2024-02-07 14:08:09 UTC&quot; &quot;2024-02-11 21:36:21 UTC&quot; &quot;2024-02-11 21:41:39 UTC&quot; &quot;2024-02-07 14:05:52 UTC&quot;
-[5] &quot;2024-02-08 22:56:23 UTC&quot; &quot;2024-02-09 23:36:09 UTC&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcImhlYWRfbm90X3NlbGZcIiAgICBcImFwcFwiICAgICAgICAgICAgICBcInBheWluZ1wiICAgICAgICAgICBcImxvYW5fbGVuZ3RoXCIgICAgICBcImxvYW5fY29tcFwiICAgICAgICBcIndlZWtseV9wYXlcIiAgICAgIFxuIFs3XSBcImluc3VyZV90aGlyZFwiICAgICBcImluc3VyZV9jb21wXCIgICAgICBcImluc3VyZV9tZWRcIiAgICAgICBcImluc3VyZV9saWZlXCIgICAgICBcImluc3VyZV9ub25lXCIgICAgICBcImRhdGVcIiAgICAgICAgICAgIFxuWzEzXSBcInBldHJvbFwiICAgICAgICAgICBcIm9pbFwiICAgICAgICAgICAgICBcIm9pbF9jb3N0XCIgICAgICAgICBcInBheW1lbnRcIiAgICAgICAgICBcInBheW1lbnRfY29zdFwiICAgICBcInBhc3Nlbmdlcl9vZmZcIiAgIFxuWzE5XSBcImRlbGl2X29mZlwiICAgICAgICBcInBhc3Nlbmdlcl9vblwiICAgICBcImRlbGl2X29uXCIgICAgICAgICBcInJlamVjdF90aW1lXCIgICAgICBcImFwcF9wYXltZW50XCIgICAgICBcImFwcF9wYXltZW50X2Nvc3RcIlxuIn0= -->
+<pre><code> [1] &quot;head_not_self&quot;    &quot;app&quot;              &quot;paying&quot;           &quot;loan_length&quot;      &quot;loan_comp&quot;        &quot;weekly_pay&quot;      
+ [7] &quot;insure_third&quot;     &quot;insure_comp&quot;      &quot;insure_med&quot;       &quot;insure_life&quot;      &quot;insure_none&quot;      &quot;date&quot;            
+[13] &quot;petrol&quot;           &quot;oil&quot;              &quot;oil_cost&quot;         &quot;payment&quot;          &quot;payment_cost&quot;     &quot;passenger_off&quot;   
+[19] &quot;deliv_off&quot;        &quot;passenger_on&quot;     &quot;deliv_on&quot;         &quot;reject_time&quot;      &quot;app_payment&quot;      &quot;app_payment_cost&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ3JlZW53aGVlbCRyZWplY3Rfb3RoZXIgPC0gYXMuaW50ZWdlcihncmVlbndoZWVsJHJlamVjdF9vdGhlcilcbmp1c3RfZHJpdmVyJHJlamVjdF9vdGhlciA8LSBhcy5pbnRlZ2VyKGp1c3RfZHJpdmVyJHJlamVjdF9vdGhlcilcbmBgYCJ9 -->
+<pre class="r"><code>greenwheel$reject_other &lt;- as.integer(greenwheel$reject_other)
+just_driver$reject_other &lt;- as.integer(just_driver$reject_other)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogTkFzIGludHJvZHVjZWQgYnkgY29lcmNpb25cbiJ9 -->
+<pre><code>Warning: NAs introduced by coercion</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuanVzdF9kcml2ZXIkc3RhcnRfcHJlIDwtIHdpdGhfdHooeW1kX2htcyhqdXN0X2RyaXZlciRzdGFydF9wcmUpLCBcIlVUQ1wiKVxuanVzdF9kcml2ZXIkZW5kX3ByZSA8LSB3aXRoX3R6KHltZF9obXMoanVzdF9kcml2ZXIkZW5kX3ByZSksIFwiVVRDXCIpXG5gYGAifQ== -->
+<pre class="r"><code>just_driver$start_pre &lt;- with_tz(ymd_hms(just_driver$start_pre), &quot;UTC&quot;)
+just_driver$end_pre &lt;- with_tz(ymd_hms(just_driver$end_pre), &quot;UTC&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="number-of-columns" class="section level2">
+<h2>Number of Columns</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2F0KFwiVGhlIGFwcGVuZGVkIGRhdGFzZXQgc2hvdWxkIGhhdmVcIiwgbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpLCBcInJvd3MuXCIpXG5gYGAifQ== -->
+<pre class="r"><code>cat(&quot;The appended dataset should have&quot;, nrow(greenwheel) + nrow(just_driver), &quot;rows.&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVGhlIGFwcGVuZGVkIGRhdGFzZXQgc2hvdWxkIGhhdmUgMTMyNyByb3dzLlxuIn0= -->
+<pre><code>The appended dataset should have 1327 rows.</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1893,15 +1937,60 @@ just_driver &lt;- just_driver %&gt;%
 </div>
 <div id="appending-datasets" class="section level1">
 <h1>Appending Datasets</h1>
-<ul>
-<li><p>Summary statistics for both groups for different
-demographics</p></li>
-<li><p>DHS dataset for 2020 (need to apply for it).</p></li>
-</ul>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXBwZW5kZWRfZGYgPC0gYmluZF9yb3dzKGp1c3RfZHJpdmVyLCBncmVlbndoZWVsKVxuXG5pZiAobnJvdyhhcHBlbmRlZF9kZikgPT0gbnJvdyhncmVlbndoZWVsKSArIG5yb3coanVzdF9kcml2ZXIpKXtcbiAgICBwcmludChcIlRoZSBhcHBlbmRpbmcgd2FzIHN1Y2Nlc3NmdWwhXCIpXG59IGVsc2V7XG4gICAgcHJpbnQoXCJTb21ldGhpbmcgd2VudCB3cm9uZy5cIilcbn1cbmBgYCJ9 -->
+<pre class="r"><code>appended_df &lt;- bind_rows(just_driver, greenwheel)
+
+if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
+    print(&quot;The appending was successful!&quot;)
+} else{
+    print(&quot;Something went wrong.&quot;)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGFwcGVuZGluZyB3YXMgc3VjY2Vzc2Z1bCFcIlxuIn0= -->
+<pre><code>[1] &quot;The appending was successful!&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="label-encoding-the-columns" class="section level1">
+<h1>Label Encoding The Columns</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbImFwcGVuZGVkX2RmIDwtIGFwcGVuZGVkX2RmICU+JSAiLCIgICAgbXV0YXRlKGdlbmRlciA9IGlmZWxzZShnZW5kZXIgPT0gXCJNYWxlXCIsIDEsIDApLCIsIiAgICAgICAgICAgaGVhZCA9IGlmZWxzZShoZWFkID09IFwiWWVzLCBJIGFtIHRoZSBoZWFkIG9mIHRoZSBob3VzZWhvbGRcIiwgMSwgMCksIiwiICAgICAgICAgICBtYXIgPSBjYXNlX3doZW4oIiwiICAgICAgICAgICAgICAgbWFyID09IFwiTm8sIEkgaGF2ZSBuZXZlciBiZWVuIG1hcnJpZWRcIiB+IDAsIiwiICAgICAgICAgICAgICAgbWFyID09IFwiWWVzLCBJIGFtIGN1cnJlbnRseSBtYXJyaWVkIGFuZCBsaXZpbmcgdG9nZXRoZXJcIiB+IDEsIiwiICAgICAgICAgICAgICAgbWFyID09IFwiTm8sIEkgaGF2ZSBuZXZlciBiZWVuIG1hcnJpZWRcIiB+IDIiLCIgICAgICAgICAgICksIiwiICAgICAgICAgICBlZHVjID0gY2FzZV93aGVuKCIsIiAgICAgICAgICAgICAgIGVkdWMgPT0gXCJEaWQgbm90IGNvbXBsZXRlIHByaW1hcnlcIiB+IDAsIiwiICAgICAgICAgICAgICAgZWR1YyA9PSBcIlByaW1hcnlcIiB+IDEsIiwiICAgICAgICAgICAgICAgZWR1YyA9PSBcIlNlY29uZGFyeSAoRm9ybSA0KVwiIH4gMiwiLCIgICAgICAgICAgICAgICBlZHVjID09IFwiVGVydGlhcnkgKHVuaXZlcnNpdHkgb3IgY2VydGlmaWNhdGUpXCIgfiAzIiwiICAgICAgICAgICApLCIsIiAgICAgICAgICAgKSJdfQ== -->
+<pre class="r"><code>appended_df &lt;- appended_df %&gt;% 
+    mutate(gender = ifelse(gender == &quot;Male&quot;, 1, 0),
+           head = ifelse(head == &quot;Yes, I am the head of the household&quot;, 1, 0),
+           mar = case_when(
+               mar == &quot;No, I have never been married&quot; ~ 0,
+               mar == &quot;Yes, I am currently married and living together&quot; ~ 1,
+               mar == &quot;No, I have never been married&quot; ~ 2
+           ),
+           educ = case_when(
+               educ == &quot;Did not complete primary&quot; ~ 0,
+               educ == &quot;Primary&quot; ~ 1,
+               educ == &quot;Secondary (Form 4)&quot; ~ 2,
+               educ == &quot;Tertiary (university or certificate)&quot; ~ 3
+           ),
+           )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="exporting-appended-dataset" class="section level1">
+<h1>Exporting Appended Dataset</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud3JpdGUueGxzeChhcHBlbmRlZF9kZiwgZmlsZSA9IFwiL1VzZXJzL25pY2hvbGFzL0Rlc2t0b3AvQ2FsX1BvbHlfU0xPLzUtV29ybGRfQmFuay9EYXRhL21lcmdlZF9kYXRhL2FwcGVuZGVkX2RmLnhsc3hcIilcbmBgYCJ9 -->
+<pre class="r"><code>write.xlsx(appended_df, file = &quot;/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQXBwZW5kaW5nIERhdGFzZXRzIgpzdWJ0aXRsZTogIkdTRSBTNTgwIgphdXRob3I6ICJFbW9yeSBSYXBhcG9ydCwgS2ltIEhlciwgTmljaG9sYXMgRmVuZyBTY2hhZWZlciIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBTZXQgVXAKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KHJlYWR4bCkKYGBgCgojIExvYWRpbmcgRGF0YXNldHMKYGBge3J9CmdyZWVud2hlZWwgPC0gcmVhZF94bHN4KCIvVXNlcnMvbmljaG9sYXMvRGVza3RvcC9DYWxfUG9seV9TTE8vNS1Xb3JsZF9CYW5rL3dvcmxkX2JhbmtfcHJvamVjdC9kYXRhL2d3X2ZpbHRlcmVkLnhsc3giKQpqdXN0X2RyaXZlciA8LSByZWFkX3hsc3goIi9Vc2Vycy9uaWNob2xhcy9EZXNrdG9wL0NhbF9Qb2x5X1NMTy81LVdvcmxkX0Jhbmsvd29ybGRfYmFua19wcm9qZWN0L2RhdGEvaWNlX2ZpbHRlcmVkLnhsc3giKQpgYGAKCiMgUHJlIFNhbml0eSBDaGVja3MKCiMjIElkZW50aWZpY2F0aW9uIFZhcmlhYmxlCmBgYHtyfQpncmVlbndoZWVsJGdyZWVud2hlZWxfZHVtbXkgPC0gMQpqdXN0X2RyaXZlciRncmVlbndoZWVsX2R1bW15IDwtIDAKYGBgCgojIyBDb2x1bW4gTmFtZXMKYGBge3J9CmlmIChpZGVudGljYWwoY29sbmFtZXMoZ3JlZW53aGVlbCksIGNvbG5hbWVzKGp1c3RfZHJpdmVyKSkgPT0gVFJVRSl7CiAgICBwcmludCgiVGhlIGNvbHVtbiBuYW1lcyBvZiBib3RoIGRhdGFzZXRzIGFyZSB0aGUgc2FtZS4iKQp9IGVsc2V7CiAgICBwcmludCgiVGhlIGNvbHVtbiBuYW1lcyBvZiB0aGUgZGF0YXNldHMgZG9uJ3QgbWF0Y2giKQp9CmBgYAoKYGBge3J9CnNldGRpZmYoY29sbmFtZXMoZ3JlZW53aGVlbCksIGNvbG5hbWVzKGp1c3RfZHJpdmVyKSkKYGBgCgpgYGB7cn0Kc2V0ZGlmZihjb2xuYW1lcyhqdXN0X2RyaXZlciksIGNvbG5hbWVzKGdyZWVud2hlZWwpKQpgYGAKCiMjIyBRdWVzdGlvbnMKCiogRG8gd2UgbmVlZCBgc3RhcnRfeGAsIGBlbmRfeGAsIC4uLiBmb3IgR3JlZW5XaGVlbCBhbmQgYHN0YXJ0YCBhbmQgYGVuZGAgZm9yIEp1c3QgRHJpdmVyPwoKKiBEb2VzIGl0IG1hdHRlciB3aG8gaXMgaGVhZCBvZiBob3VzZWhvbGQgaWYgbm90IHRoZSBkcml2ZXJzIHRoZW1zZWx2ZXM/IEZvciB0aGUgSnVzdCBEcml2ZXIgZGF0YXNldCB3ZSBoYXZlIGluZm9ybWF0aW9uIG9uIHdobyB0aGUgaGVhZCBvZiBob3VzZWhvbGQgaXM7IGhvd2V2ZXIsIGZvciB0aGUgR3JlZW5XaGVlbCBkYXRhc2V0IHdlIG9ubHkgaGF2ZSBkYXRhIG9ubHkgd2hldGhlciB0aGUgZHJpdmVyIGlzIHRoZSBoZWFkIG9mIHRoZSBob3VzZWhvbGQgb3Igbm90LiBJZiB3ZSBkb24ndCBuZWVkIHRoYXQgc3BlY2lmaWMgaW5mb3JtYXRpb24sIHdlIGNhbiBqdXN0IGNvbWJpbmUgdGhlIHR3byBjb2x1bW5zIGludG8gb25lIGFuZCB0cmFuc2Zvcm0gaXQgaW50byBhIGJpbmFyeSBkdW1teSB2YXJpYWJsZSAoMSBpZiBoZWFkIG9mIGhvdXNlaG9sZCBhbmQgMCBpZiBub3QpLgoKIyMgUmVuYW1pbmcgQ29sdW1ucwpgYGB7cn0KZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSAKICAgIHJlbmFtZShlZHUgPSBlZHVjLAogICAgICAgICAgICkKCmp1c3RfZHJpdmVyIDwtIGp1c3RfZHJpdmVyICU+JSAKICAgIHJlbmFtZShlZGMgPSBlZHVjLAogICAgICAgICAgIGluY29tZV9vdGhlciA9IG90aGVyX2luY29tZSwKICAgICAgICAgICBpbmNvbWVfb3RoZXJfMSA9IG90aGVyX2luY29tZV8xKQpgYGAKCmBgYHtyfQpncmVlbndoZWVsJHN0YXJ0X3ggJT4lIAogICAgaGVhZCgpCmBgYAoKYGBge3J9CmdyZWVud2hlZWwkc3RhcnRfeSAlPiUgCiAgICBoZWFkKCkKYGBgCgojIEFwcGVuZGluZyBEYXRhc2V0cwoKKiBTdW1tYXJ5IHN0YXRpc3RpY3MgZm9yIGJvdGggZ3JvdXBzIGZvciBkaWZmZXJlbnQgZGVtb2dyYXBoaWNzCgoqIERIUyBkYXRhc2V0IGZvciAyMDIwIChuZWVkIHRvIGFwcGx5IGZvciBpdCkuCgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQXBwZW5kaW5nIERhdGFzZXRzIgpzdWJ0aXRsZTogIkdTRSBTNTgwIgphdXRob3I6ICJFbW9yeSBSYXBhcG9ydCwgS2ltIEhlciwgTmljaG9sYXMgRmVuZyBTY2hhZWZlciIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBTZXQgVXAKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KHJlYWR4bCkKbGlicmFyeShsdWJyaWRhdGUpCmxpYnJhcnkob3Blbnhsc3gpCmBgYAoKIyBMb2FkaW5nIERhdGFzZXRzCmBgYHtyfQpncmVlbndoZWVsIDwtIHJlYWRfeGxzeCgiL1VzZXJzL25pY2hvbGFzL0Rlc2t0b3AvQ2FsX1BvbHlfU0xPLzUtV29ybGRfQmFuay9EYXRhL21lcmdlZF9kYXRhL2d3X2ZpbHRlcmVkLnhsc3giKQpqdXN0X2RyaXZlciA8LSByZWFkX3hsc3goIi9Vc2Vycy9uaWNob2xhcy9EZXNrdG9wL0NhbF9Qb2x5X1NMTy81LVdvcmxkX0JhbmsvRGF0YS9tZXJnZWRfZGF0YS9pY2VfZmlsdGVyZWQueGxzeCIpCmBgYAoKIyBQcmUgU2FuaXR5IENoZWNrcwoKIyMgSWRlbnRpZmljYXRpb24gVmFyaWFibGUKYGBge3J9CmdyZWVud2hlZWwkZ3JlZW53aGVlbF9kdW1teSA8LSAxCmp1c3RfZHJpdmVyJGdyZWVud2hlZWxfZHVtbXkgPC0gMApgYGAKCiMjIE1lcmdlIFZhcmlhYmxlCmBgYHtyfQpncmVlbndoZWVsJG1lcmdlIDwtIGFwcGx5KGdyZWVud2hlZWxbYygic2FsYXJ5IiwgImhvbWVfbGFib3IiLCAibGVpc3VyZSIsICJzbGVlcCIpXSwgMSwgZnVuY3Rpb24oeCkgaWYgKGFsbChpcy5uYSh4KSkpIDAgZWxzZSAxKQoKanVzdF9kcml2ZXIkbWVyZ2UgPC0gMQpgYGAKCiMjIENvbHVtbiBOYW1lcwpgYGB7cn0KaWYgKGlkZW50aWNhbChjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKSA9PSBUUlVFKXsKICAgIHByaW50KCJUaGUgY29sdW1uIG5hbWVzIG9mIGJvdGggZGF0YXNldHMgYXJlIHRoZSBzYW1lLiIpCn0gZWxzZXsKICAgIHByaW50KCJUaGUgY29sdW1uIG5hbWVzIG9mIHRoZSBkYXRhc2V0cyBkb24ndCBtYXRjaCIpCn0KYGBgCgpgYGB7cn0Kc2V0ZGlmZihjb2xuYW1lcyhncmVlbndoZWVsKSwgY29sbmFtZXMoanVzdF9kcml2ZXIpKQpgYGAKCmBgYHtyfQpzZXRkaWZmKGNvbG5hbWVzKGp1c3RfZHJpdmVyKSwgY29sbmFtZXMoZ3JlZW53aGVlbCkpCmBgYAoKIyMgUmVuYW1pbmcgQ29sdW1ucwpgYGB7cn0KZ3JlZW53aGVlbCA8LSBncmVlbndoZWVsICU+JSAKICAgIHJlbmFtZShlZHVjID0gZWR1LAogICAgICAgICAgIGRhaWx5X2luY29tZV9ib2RhID0gc2FsYXJ5LAogICAgICAgICAgIGNvbnRlbnQgPSBmbGV4LAogICAgICAgICAgIHN0YXJ0X3ByZSA9IHN0YXJ0X3gsCiAgICAgICAgICAgZW5kX3ByZSA9IGVuZF94LAogICAgICAgICAgIHN0YXJ0X2RhaWx5ID0gc3RhcnRfeSwKICAgICAgICAgICBlbmRfZGFpbHkgPSBlbmRfeSwKICAgICAgICAgICB0aW1lX3dvcmtfcHJvcCA9IHRpbWVfd29ya19zYW1wbGUpICU+JSAKICAgIGRwbHlyOjpzZWxlY3QoLW90aGVyX2luY29tZV8xKQoKanVzdF9kcml2ZXIgPC0ganVzdF9kcml2ZXIgJT4lIAogICAgcmVuYW1lKGVkdWMgPSBlZGMsCiAgICAgICAgICAgb3RoZXJfaW5jb21lID0gaW5jb21lX290aGVyLAogICAgICAgICAgIG90aGVyX2luY29tZV8xID0gaW5jb21lX290aGVyXzEsCiAgICAgICAgICAgZGFpbHlfaW5jb21lX2JvZGEgPSBpbmNvbWVfYm9kYSwKICAgICAgICAgICBzdGFydF9wcmUgPSBzdGFydCwKICAgICAgICAgICBlbmRfcHJlID0gZW5kLAogICAgICAgICAgIHRpbWVfd29ya19wcm9wID0gdGltZV93b3JrX3NhbXBsZSkgJT4lIAogICAgc2VsZWN0KC1sZXNzX2hyLCAtb3RoZXJfaW5jb21lXzEpCmBgYAoKYGBge3J9CnNldGRpZmYoY29sbmFtZXMoZ3JlZW53aGVlbCksIGNvbG5hbWVzKGp1c3RfZHJpdmVyKSkKYGBgCgpgYGB7cn0Kc2V0ZGlmZihjb2xuYW1lcyhqdXN0X2RyaXZlciksIGNvbG5hbWVzKGdyZWVud2hlZWwpKQpgYGAKCmBgYHtyfQpncmVlbndoZWVsJHJlamVjdF9vdGhlciA8LSBhcy5pbnRlZ2VyKGdyZWVud2hlZWwkcmVqZWN0X290aGVyKQpqdXN0X2RyaXZlciRyZWplY3Rfb3RoZXIgPC0gYXMuaW50ZWdlcihqdXN0X2RyaXZlciRyZWplY3Rfb3RoZXIpCmBgYAoKYGBge3J9Cmp1c3RfZHJpdmVyJHN0YXJ0X3ByZSA8LSB3aXRoX3R6KHltZF9obXMoanVzdF9kcml2ZXIkc3RhcnRfcHJlKSwgIlVUQyIpCmp1c3RfZHJpdmVyJGVuZF9wcmUgPC0gd2l0aF90eih5bWRfaG1zKGp1c3RfZHJpdmVyJGVuZF9wcmUpLCAiVVRDIikKYGBgCgojIyBOdW1iZXIgb2YgQ29sdW1ucwpgYGB7cn0KY2F0KCJUaGUgYXBwZW5kZWQgZGF0YXNldCBzaG91bGQgaGF2ZSIsIG5yb3coZ3JlZW53aGVlbCkgKyBucm93KGp1c3RfZHJpdmVyKSwgInJvd3MuIikKYGBgCgojIEFwcGVuZGluZyBEYXRhc2V0cwpgYGB7cn0KYXBwZW5kZWRfZGYgPC0gYmluZF9yb3dzKGp1c3RfZHJpdmVyLCBncmVlbndoZWVsKQoKaWYgKG5yb3coYXBwZW5kZWRfZGYpID09IG5yb3coZ3JlZW53aGVlbCkgKyBucm93KGp1c3RfZHJpdmVyKSl7CiAgICBwcmludCgiVGhlIGFwcGVuZGluZyB3YXMgc3VjY2Vzc2Z1bCEiKQp9IGVsc2V7CiAgICBwcmludCgiU29tZXRoaW5nIHdlbnQgd3JvbmcuIikKfQpgYGAKCiMgTGFiZWwgRW5jb2RpbmcgVGhlIENvbHVtbnMKYGBge3IsIGV2YWw9RkFMU0V9CmFwcGVuZGVkX2RmIDwtIGFwcGVuZGVkX2RmICU+JSAKICAgIG11dGF0ZShnZW5kZXIgPSBpZmVsc2UoZ2VuZGVyID09ICJNYWxlIiwgMSwgMCksCiAgICAgICAgICAgaGVhZCA9IGlmZWxzZShoZWFkID09ICJZZXMsIEkgYW0gdGhlIGhlYWQgb2YgdGhlIGhvdXNlaG9sZCIsIDEsIDApLAogICAgICAgICAgIG1hciA9IGNhc2Vfd2hlbigKICAgICAgICAgICAgICAgbWFyID09ICJObywgSSBoYXZlIG5ldmVyIGJlZW4gbWFycmllZCIgfiAwLAogICAgICAgICAgICAgICBtYXIgPT0gIlllcywgSSBhbSBjdXJyZW50bHkgbWFycmllZCBhbmQgbGl2aW5nIHRvZ2V0aGVyIiB+IDEsCiAgICAgICAgICAgICAgIG1hciA9PSAiTm8sIEkgaGF2ZSBuZXZlciBiZWVuIG1hcnJpZWQiIH4gMgogICAgICAgICAgICksCiAgICAgICAgICAgZWR1YyA9IGNhc2Vfd2hlbigKICAgICAgICAgICAgICAgZWR1YyA9PSAiRGlkIG5vdCBjb21wbGV0ZSBwcmltYXJ5IiB+IDAsCiAgICAgICAgICAgICAgIGVkdWMgPT0gIlByaW1hcnkiIH4gMSwKICAgICAgICAgICAgICAgZWR1YyA9PSAiU2Vjb25kYXJ5IChGb3JtIDQpIiB+IDIsCiAgICAgICAgICAgICAgIGVkdWMgPT0gIlRlcnRpYXJ5ICh1bml2ZXJzaXR5IG9yIGNlcnRpZmljYXRlKSIgfiAzCiAgICAgICAgICAgKSwKICAgICAgICAgICApCmBgYAoKIyBFeHBvcnRpbmcgQXBwZW5kZWQgRGF0YXNldApgYGB7cn0Kd3JpdGUueGxzeChhcHBlbmRlZF9kZiwgZmlsZSA9ICIvVXNlcnMvbmljaG9sYXMvRGVza3RvcC9DYWxfUG9seV9TTE8vNS1Xb3JsZF9CYW5rL0RhdGEvbWVyZ2VkX2RhdGEvYXBwZW5kZWRfZGYueGxzeCIpCmBgYAoKCgoKCg==</div>
 
 
 

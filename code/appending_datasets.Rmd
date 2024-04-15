@@ -9,12 +9,14 @@ output: html_notebook
 ```{r, message=FALSE}
 library(tidyverse)
 library(readxl)
+library(lubridate)
+library(openxlsx)
 ```
 
 # Loading Datasets
 ```{r}
-greenwheel <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/gw_filtered.xlsx")
-just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/data/ice_filtered.xlsx")
+greenwheel <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/gw_filtered.xlsx")
+just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/ice_filtered.xlsx")
 ```
 
 # Pre Sanity Checks
@@ -23,6 +25,13 @@ just_driver <- read_xlsx("/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/worl
 ```{r}
 greenwheel$greenwheel_dummy <- 1
 just_driver$greenwheel_dummy <- 0
+```
+
+## Merge Variable
+```{r}
+greenwheel$merge <- apply(greenwheel[c("salary", "home_labor", "leisure", "sleep")], 1, function(x) if (all(is.na(x))) 0 else 1)
+
+just_driver$merge <- 1
 ```
 
 ## Column Names
@@ -42,38 +51,89 @@ setdiff(colnames(greenwheel), colnames(just_driver))
 setdiff(colnames(just_driver), colnames(greenwheel))
 ```
 
-### Questions
-
-* Do we need `start_x`, `end_x`, ... for GreenWheel and `start` and `end` for Just Driver?
-
-* Does it matter who is head of household if not the drivers themselves? For the Just Driver dataset we have information on who the head of household is; however, for the GreenWheel dataset we only have data only whether the driver is the head of the household or not. If we don't need that specific information, we can just combine the two columns into one and transform it into a binary dummy variable (1 if head of household and 0 if not).
-
 ## Renaming Columns
 ```{r}
 greenwheel <- greenwheel %>% 
-    rename(edu = educ,
-           )
+    rename(educ = edu,
+           daily_income_boda = salary,
+           content = flex,
+           start_pre = start_x,
+           end_pre = end_x,
+           start_daily = start_y,
+           end_daily = end_y,
+           time_work_prop = time_work_sample) %>% 
+    dplyr::select(-other_income_1)
 
 just_driver <- just_driver %>% 
-    rename(edc = educ,
-           income_other = other_income,
-           income_other_1 = other_income_1)
+    rename(educ = edc,
+           other_income = income_other,
+           other_income_1 = income_other_1,
+           daily_income_boda = income_boda,
+           start_pre = start,
+           end_pre = end,
+           time_work_prop = time_work_sample) %>% 
+    select(-less_hr, -other_income_1)
 ```
 
 ```{r}
-greenwheel$start_x %>% 
-    head()
+setdiff(colnames(greenwheel), colnames(just_driver))
 ```
 
 ```{r}
-greenwheel$start_y %>% 
-    head()
+setdiff(colnames(just_driver), colnames(greenwheel))
+```
+
+```{r}
+greenwheel$reject_other <- as.integer(greenwheel$reject_other)
+just_driver$reject_other <- as.integer(just_driver$reject_other)
+```
+
+```{r}
+just_driver$start_pre <- with_tz(ymd_hms(just_driver$start_pre), "UTC")
+just_driver$end_pre <- with_tz(ymd_hms(just_driver$end_pre), "UTC")
+```
+
+## Number of Columns
+```{r}
+cat("The appended dataset should have", nrow(greenwheel) + nrow(just_driver), "rows.")
 ```
 
 # Appending Datasets
+```{r}
+appended_df <- bind_rows(just_driver, greenwheel)
 
-* Summary statistics for both groups for different demographics
+if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
+    print("The appending was successful!")
+} else{
+    print("Something went wrong.")
+}
+```
 
-* DHS dataset for 2020 (need to apply for it).
+# Label Encoding The Columns
+```{r, eval=FALSE}
+appended_df <- appended_df %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           )
+```
+
+# Exporting Appended Dataset
+```{r}
+write.xlsx(appended_df, file = "/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx")
+```
+
+
+
 
 
