@@ -1,7 +1,0 @@
----
-title: "Exploring DHS Datasets"
-subtitle: "GSE S580"
-author: "Nicholas Feng Schaefer"
-output: html_notebook
----
-

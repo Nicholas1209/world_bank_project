@@ -1,0 +1,61 @@
+---
+title: "Exploring DHS Datasets"
+author: "Nicholas Feng Schaefer"
+subtitle: GSE S580
+output:
+  html_document:
+    df_print: paged
+---
+
+# Set Up
+```{r}
+library(haven)
+```
+
+# Background Information
+
+* First two letters ("KE") are the country code.
+
+* Subsequent two letters (e.g. "BR") describe the [data file type](https://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10138).
+
+    1. BR: Birth Recode
+    
+    2. CR: Couples' Recode
+    
+    3. FW: Field Worker Questionnaire
+    
+    4. GC: Geospatial Covariates
+    
+    5. GE: Geographic Data
+    
+    6. GR: Pregnancy Recode
+    
+    7. HR: Household Recode
+    
+    8. IR: Individual Recode
+    
+    9. KR: Children's Recode
+    
+    10. MR: Men's Recode
+    
+    11. NR: Pregnancy and Postnatal Care Recode
+    
+    12. PR: Household Member Recode
+
+* The next two characters (e.g. "41") refer to the [phase and number of the survey]("https://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10141").
+
+# 2022
+
+## Birth Recode
+```{r}
+dhs_br_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_57803/KEBR8BDT/KEBR8BFL.DTA")
+```
+
+```{r}
+dhs_br_2022
+```
+
+
+
+
+
