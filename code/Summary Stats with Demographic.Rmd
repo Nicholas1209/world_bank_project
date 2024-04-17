@@ -12,9 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load Dataset
 
 ```{r}
-library(readr)
-library(tidyverse)
-data_1 <- read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_data.csv')
+suppressMessages(library(readr))
+suppressMessages(library(tidyverse))
+data_1 <- suppressMessages(read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_data.csv'))
 ```
 
 ##  Boda Income: Greenwheel vs Just Riders
@@ -31,6 +31,8 @@ income_boda <- data_1 %>% group_by(greenwheel_dummy) %>%
     max_boda_income = max(daily_income_boda, na.rm = TRUE)
   )
 print(income_boda)
+
+t.test(data_1$daily_income_boda ~ data_1$greenwheel_dummy)
 ```
 
 ##  Other Income: Greenwheel vs Just Riders
@@ -47,6 +49,7 @@ income_other <- data_1 %>% group_by(greenwheel_dummy) %>%
     max_other_income = max(other_income, na.rm = TRUE)
   )
 print(income_other)
+t.test(data_1$other_income ~ data_1$greenwheel_dummy)
 ```
 
 ##  Gross Income: Greenwheel vs Just Riders
@@ -56,13 +59,14 @@ GW: 1
 ```{r}
 income_gross <- data_1 %>% group_by(greenwheel_dummy) %>%
   summarise(
-    mean_other_income = mean(gross_income, na.rm = TRUE),
-    median_other_income = median(gross_income, na.rm = TRUE),
-    sd_other_income = sd(gross_income, na.rm = TRUE),
-    min_other_income = min(gross_income, na.rm = TRUE),
-    max_other_income = max(gross_income, na.rm = TRUE)
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
   )
 print(income_gross)
+t.test(data_1$gross_income ~ data_1$greenwheel_dummy)
 ```
 
 ##  Boda Income Based on Age: Greenwheel vs Just Riders
@@ -70,7 +74,7 @@ JR:0
 GW: 1
 
 ```{r}
-income_boda <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+income_boda_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
     mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
     median_boda_income = median(daily_income_boda, na.rm = TRUE),
@@ -78,7 +82,36 @@ income_boda <- data_1 %>% group_by(greenwheel_dummy, age) %>%
     min_boda_income = min(daily_income_boda, na.rm = TRUE),
     max_boda_income = max(daily_income_boda, na.rm = TRUE)
   )
-print(income_boda)
+print(income_boda_age)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$age[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$age[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$daily_income_boda, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$daily_income_boda, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
 ```
 
 ##  Other Income Based on Age: Greenwheel vs Just Riders
@@ -86,7 +119,7 @@ JR:0
 GW: 1
 
 ```{r}
-income_other <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+income_other_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
     mean_other_income = mean(other_income, na.rm = TRUE),
     median_other_income = median(other_income, na.rm = TRUE),
@@ -94,7 +127,36 @@ income_other <- data_1 %>% group_by(greenwheel_dummy, age) %>%
     min_other_income = min(other_income, na.rm = TRUE),
     max_other_income = max(other_income, na.rm = TRUE)
   )
-print(income_other)
+print(income_other_age)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$age[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$age[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$other_income, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$other_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
 ```
 
 ##  Gross Income Based on Age: Greenwheel vs Just Riders
@@ -102,23 +164,54 @@ JR:0
 GW: 1
 
 ```{r}
-income_gross <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+income_gross_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
-    mean_other_income = mean(gross_income, na.rm = TRUE),
-    median_other_income = median(gross_income, na.rm = TRUE),
-    sd_other_income = sd(gross_income, na.rm = TRUE),
-    min_other_income = min(gross_income, na.rm = TRUE),
-    max_other_income = max(gross_income, na.rm = TRUE)
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
   )
-print(income_gross)
+print(income_gross_age)
+
 ```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$age[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$age[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+```
+
 
 ##  Boda Income Based on Education: Greenwheel vs Just Riders
 JR:0
 GW: 1
 
 ```{r}
-income_boda <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+income_boda_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
     mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
     median_boda_income = median(daily_income_boda, na.rm = TRUE),
@@ -126,7 +219,38 @@ income_boda <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
     min_boda_income = min(daily_income_boda, na.rm = TRUE),
     max_boda_income = max(daily_income_boda, na.rm = TRUE)
   )
-print(income_boda)
+print(income_boda_educ)
+```
+
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$daily_income_boda, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$daily_income_boda, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Other Income Based on Education: Greenwheel vs Just Riders
@@ -134,7 +258,7 @@ JR:0
 GW: 1
 
 ```{r}
-income_other <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+income_other_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
     mean_other_income = mean(other_income, na.rm = TRUE),
     median_other_income = median(other_income, na.rm = TRUE),
@@ -142,7 +266,39 @@ income_other <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
     min_other_income = min(other_income, na.rm = TRUE),
     max_other_income = max(other_income, na.rm = TRUE)
   )
-print(income_other)
+print(income_other_educ)
+
+```
+
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$other_income, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$other_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Gross Income Based on Education: Greenwheel vs Just Riders
@@ -150,15 +306,46 @@ JR:0
 GW: 1
 
 ```{r}
-income_gross <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+income_gross_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
-    mean_other_income = mean(gross_income, na.rm = TRUE),
-    median_other_income = median(gross_income, na.rm = TRUE),
-    sd_other_income = sd(gross_income, na.rm = TRUE),
-    min_other_income = min(gross_income, na.rm = TRUE),
-    max_other_income = max(gross_income, na.rm = TRUE)
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
   )
-print(income_gross)
+print(income_gross_educ)
+```
+
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Boda Income Based on Dependents: Greenwheel vs Just Riders
@@ -166,7 +353,7 @@ JR:0
 GW: 1
 
 ```{r}
-income_boda <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+income_boda_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
     mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
     median_boda_income = median(daily_income_boda, na.rm = TRUE),
@@ -174,7 +361,38 @@ income_boda <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
     min_boda_income = min(daily_income_boda, na.rm = TRUE),
     max_boda_income = max(daily_income_boda, na.rm = TRUE)
   )
-print(income_boda)
+print(income_boda_dep)
+
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
 ```
 
 ##  Other Income Based on Dependents: Greenwheel vs Just Riders
@@ -182,7 +400,7 @@ JR:0
 GW: 1
 
 ```{r}
-income_other <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+income_other_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
     mean_other_income = mean(other_income, na.rm = TRUE),
     median_other_income = median(other_income, na.rm = TRUE),
@@ -190,7 +408,37 @@ income_other <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
     min_other_income = min(other_income, na.rm = TRUE),
     max_other_income = max(other_income, na.rm = TRUE)
   )
-print(income_other)
+print(income_other_dep)
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0 & data_1$other_income, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1 & data_1$other_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
 ```
 
 ##  Gross Income Based on Dependents: Greenwheel vs Just Riders
@@ -198,15 +446,45 @@ JR:0
 GW: 1
 
 ```{r}
-income_gross <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+income_gross_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
-    mean_other_income = mean(gross_income, na.rm = TRUE),
-    median_other_income = median(gross_income, na.rm = TRUE),
-    sd_other_income = sd(gross_income, na.rm = TRUE),
-    min_other_income = min(gross_income, na.rm = TRUE),
-    max_other_income = max(gross_income, na.rm = TRUE)
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
   )
-print(income_gross)
+print(income_gross_dep)
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Work: Greenwheel vs Just Riders
@@ -216,14 +494,17 @@ GW: 1
 ```{r}
 work <- data_1 %>% group_by(greenwheel_dummy) %>%
   summarise(
-    mean_boda_income = mean(time_work, na.rm = TRUE),
-    median_boda_income = median(time_work, na.rm = TRUE),
-    sd_boda_income = sd(time_work, na.rm = TRUE),
-    min_boda_income = min(time_work, na.rm = TRUE),
-    max_boda_income = max(time_work, na.rm = TRUE)
+    mean_work = mean(time_work, na.rm = TRUE),
+    median_work = median(time_work, na.rm = TRUE),
+    sd_work = sd(time_work, na.rm = TRUE),
+    min_work = min(time_work, na.rm = TRUE),
+    max_work = max(time_work, na.rm = TRUE)
   )
 print(work)
+t.test(data_1$time_work ~ data_1$greenwheel_dummy)
 ```
+
+
 
 ##  Time Used for Leisure: Greenwheel vs Just Riders
 JR:0
@@ -232,13 +513,14 @@ GW: 1
 ```{r}
 leisure <- data_1 %>% group_by(greenwheel_dummy) %>%
   summarise(
-    mean_other_income = mean(leisure, na.rm = TRUE),
-    median_other_income = median(leisure, na.rm = TRUE),
-    sd_other_income = sd(leisure, na.rm = TRUE),
-    min_other_income = min(leisure, na.rm = TRUE),
-    max_other_income = max(leisure, na.rm = TRUE)
+    mean_leisure = mean(leisure, na.rm = TRUE),
+    median_leisure = median(leisure, na.rm = TRUE),
+    sd_leisure = sd(leisure, na.rm = TRUE),
+    min_leisure = min(leisure, na.rm = TRUE),
+    max_leisure = max(leisure, na.rm = TRUE)
   )
 print(leisure)
+t.test(data_1$leisure~data_1$greenwheel_dummy)
 ```
 
 ##  Time Used for Home Care: Greenwheel vs Just Riders
@@ -248,13 +530,14 @@ GW: 1
 ```{r}
 home_labor <- data_1 %>% group_by(greenwheel_dummy) %>%
   summarise(
-    mean_other_income = mean(home_labor, na.rm = TRUE),
-    median_other_income = median(home_labor, na.rm = TRUE),
-    sd_other_income = sd(home_labor, na.rm = TRUE),
-    min_other_income = min(home_labor, na.rm = TRUE),
-    max_other_income = max(home_labor, na.rm = TRUE)
+    mean_home = mean(home_labor, na.rm = TRUE),
+    median_home = median(home_labor, na.rm = TRUE),
+    sd_home = sd(home_labor, na.rm = TRUE),
+    min_home = min(home_labor, na.rm = TRUE),
+    max_home = max(home_labor, na.rm = TRUE)
   )
 print(home_labor)
+t.test(data_1$home_labor~data_1$greenwheel_dummy)
 ```
 
 ##  Time Used for Sleep: Greenwheel vs Just Riders
@@ -264,13 +547,14 @@ GW: 1
 ```{r}
 sleep <- data_1 %>% group_by(greenwheel_dummy) %>%
   summarise(
-    mean_other_income = mean(sleep, na.rm = TRUE),
-    median_other_income = median(sleep, na.rm = TRUE),
-    sd_other_income = sd(sleep, na.rm = TRUE),
-    min_other_income = min(sleep, na.rm = TRUE),
-    max_other_income = max(sleep, na.rm = TRUE)
+    mean_sleep= mean(sleep, na.rm = TRUE),
+    median_sleep = median(sleep, na.rm = TRUE),
+    sd_sleep = sd(sleep, na.rm = TRUE),
+    min_sleep = min(sleep, na.rm = TRUE),
+    max_sleep = max(sleep, na.rm = TRUE)
   )
 print(sleep)
+t.test(data_1$sleep~data_1$greenwheel_dummy)
 ```
 
 ##  Time Used for Work Based on Age: Greenwheel vs Just Riders
@@ -278,15 +562,44 @@ JR:0
 GW: 1
 
 ```{r}
-work <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+work_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
-    mean_boda_income = mean(time_work, na.rm = TRUE),
-    median_boda_income = median(time_work, na.rm = TRUE),
-    sd_boda_income = sd(time_work, na.rm = TRUE),
-    min_boda_income = min(time_work, na.rm = TRUE),
-    max_boda_income = max(time_work, na.rm = TRUE)
+    mean_work = mean(time_work, na.rm = TRUE),
+    median_work = median(time_work, na.rm = TRUE),
+    sd_work = sd(time_work, na.rm = TRUE),
+    min_work = min(time_work, na.rm = TRUE),
+    max_work = max(time_work, na.rm = TRUE)
   )
-print(work)
+print(work_age)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$age[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$age[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$time_work, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$time_work, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$time_work[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$time_work[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
 ```
 
 ##  Time Used for Leisure Based on Age: Greenwheel vs Just Riders
@@ -294,15 +607,44 @@ JR:0
 GW: 1
 
 ```{r}
-leisure <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+leisure_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
-    mean_other_income = mean(leisure, na.rm = TRUE),
-    median_other_income = median(leisure, na.rm = TRUE),
-    sd_other_income = sd(leisure, na.rm = TRUE),
-    min_other_income = min(leisure, na.rm = TRUE),
-    max_other_income = max(leisure, na.rm = TRUE)
+    mean_leisure = mean(leisure, na.rm = TRUE),
+    median_leisure = median(leisure, na.rm = TRUE),
+    sd_leisure = sd(leisure, na.rm = TRUE),
+    min_leisure = min(leisure, na.rm = TRUE),
+    max_leisure = max(leisure, na.rm = TRUE)
   )
-print(leisure)
+print(leisure_age)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$age[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$age[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$leisure, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$leisure, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$leisure[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$leisure[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
 ```
 
 ##  Time Used for Home Care Based on Age: Greenwheel vs Just Riders
@@ -310,15 +652,44 @@ JR:0
 GW: 1
 
 ```{r}
-home_labor <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+home_labor_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
-    mean_other_income = mean(home_labor, na.rm = TRUE),
-    median_other_income = median(home_labor, na.rm = TRUE),
-    sd_other_income = sd(home_labor, na.rm = TRUE),
-    min_other_income = min(home_labor, na.rm = TRUE),
-    max_other_income = max(home_labor, na.rm = TRUE)
+    mean_home = mean(home_labor, na.rm = TRUE),
+    median_home = median(home_labor, na.rm = TRUE),
+    sd_home = sd(home_labor, na.rm = TRUE),
+    min_home = min(home_labor, na.rm = TRUE),
+    max_home = max(home_labor, na.rm = TRUE)
   )
-print(home_labor)
+print(home_labor_age)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$age[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$age[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$home_labor, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$home_labor, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$home_labor[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$home_labor[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
 ```
 
 ##  Time Used for Sleep Based on Age: Greenwheel vs Just Riders
@@ -326,15 +697,44 @@ JR:0
 GW: 1
 
 ```{r}
-sleep <- data_1 %>% group_by(greenwheel_dummy, age) %>%
+sleep_age <- data_1 %>% group_by(greenwheel_dummy, age) %>%
   summarise(
-    mean_other_income = mean(sleep, na.rm = TRUE),
-    median_other_income = median(sleep, na.rm = TRUE),
-    sd_other_income = sd(sleep, na.rm = TRUE),
-    min_other_income = min(sleep, na.rm = TRUE),
-    max_other_income = max(sleep, na.rm = TRUE)
+    mean_sleep = mean(sleep, na.rm = TRUE),
+    median_sleep = median(sleep, na.rm = TRUE),
+    sd_sleep = sd(sleep, na.rm = TRUE),
+    min_sleep = min(sleep, na.rm = TRUE),
+    max_sleep = max(sleep, na.rm = TRUE)
   )
-print(sleep)
+print(sleep_age)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common age groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$age == i & data_1$greenwheel_dummy == 0 & data_1$time_work, na.rm = TRUE)
+  count_group1 <- sum(data_1$age == i & data_1$greenwheel_dummy == 1 & data_1$time_work, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$time_work[data_1$greenwheel_dummy == 0 & data_1$age == i],
+      data_1$time_work[data_1$greenwheel_dummy == 1 & data_1$age == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Age:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
 ```
 
 ##  Time Used for Work Based on Education: Greenwheel vs Just Riders
@@ -342,15 +742,45 @@ JR:0
 GW: 1
 
 ```{r}
-work <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+work_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
-    mean_boda_income = mean(time_work, na.rm = TRUE),
-    median_boda_income = median(time_work, na.rm = TRUE),
-    sd_boda_income = sd(time_work, na.rm = TRUE),
-    min_boda_income = min(time_work, na.rm = TRUE),
-    max_boda_income = max(time_work, na.rm = TRUE)
+    mean_work = mean(time_work, na.rm = TRUE),
+    median_work = median(time_work, na.rm = TRUE),
+    sd_work = sd(time_work, na.rm = TRUE),
+    min_work = min(time_work, na.rm = TRUE),
+    max_work = max(time_work, na.rm = TRUE)
   )
-print(work)
+print(work_educ)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$time_work, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$time_work, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$time_work[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$time_work[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Leisure Based on Education: Greenwheel vs Just Riders
@@ -358,15 +788,45 @@ JR:0
 GW: 1
 
 ```{r}
-leisure <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+leisure_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
-    mean_other_income = mean(leisure, na.rm = TRUE),
-    median_other_income = median(leisure, na.rm = TRUE),
-    sd_other_income = sd(leisure, na.rm = TRUE),
-    min_other_income = min(leisure, na.rm = TRUE),
-    max_other_income = max(leisure, na.rm = TRUE)
+    mean_leisure = mean(leisure, na.rm = TRUE),
+    median_leisure = median(leisure, na.rm = TRUE),
+    sd_leisure = sd(leisure, na.rm = TRUE),
+    min_leisure = min(leisure, na.rm = TRUE),
+    max_leisure = max(leisure, na.rm = TRUE)
   )
-print(leisure)
+print(leisure_educ)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$leisure, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$leisure, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$leisure[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$leisure[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Home Care Based on Education: Greenwheel vs Just Riders
@@ -374,15 +834,45 @@ JR:0
 GW: 1
 
 ```{r}
-home_labor <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+home_labor_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
-    mean_other_income = mean(home_labor, na.rm = TRUE),
-    median_other_income = median(home_labor, na.rm = TRUE),
-    sd_other_income = sd(home_labor, na.rm = TRUE),
-    min_other_income = min(home_labor, na.rm = TRUE),
-    max_other_income = max(home_labor, na.rm = TRUE)
+    mean_home = mean(home_labor, na.rm = TRUE),
+    median_home = median(home_labor, na.rm = TRUE),
+    sd_home= sd(home_labor, na.rm = TRUE),
+    min_home = min(home_labor, na.rm = TRUE),
+    max_home = max(home_labor, na.rm = TRUE)
   )
-print(home_labor)
+print(home_labor_educ)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$home_labor, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$home_labor, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$home_labor[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$home_labor[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Sleep Based on Education: Greenwheel vs Just Riders
@@ -390,15 +880,45 @@ JR:0
 GW: 1
 
 ```{r}
-sleep <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
+sleep_educ <- data_1 %>% group_by(greenwheel_dummy, educ) %>%
   summarise(
-    mean_other_income = mean(sleep, na.rm = TRUE),
-    median_other_income = median(sleep, na.rm = TRUE),
-    sd_other_income = sd(sleep, na.rm = TRUE),
-    min_other_income = min(sleep, na.rm = TRUE),
-    max_other_income = max(sleep, na.rm = TRUE)
+    mean_sleep = mean(sleep, na.rm = TRUE),
+    median_sleep = median(sleep, na.rm = TRUE),
+    sd_sleep = sd(sleep, na.rm = TRUE),
+    min_sleep = min(sleep, na.rm = TRUE),
+    max_sleep = max(sleep, na.rm = TRUE)
   )
-print(sleep)
+print(sleep_educ)
+```
+
+```{r}
+# Find common educ groups
+group0 <- unique(data_1$educ[data_1$greenwheel_dummy == 0])
+group1 <- unique(data_1$educ[data_1$greenwheel_dummy == 1])
+common <- intersect(group0, group1)
+
+# Loop over common educ groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 0 & data_1$sleep, na.rm = TRUE)
+  count_group1 <- sum(data_1$educ == i & data_1$greenwheel_dummy == 1 & data_1$sleep, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$sleep[data_1$greenwheel_dummy == 0 & data_1$educ == i],
+      data_1$sleep[data_1$greenwheel_dummy == 1 & data_1$educ == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Educ:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Work Based on Dependents: Greenwheel vs Just Riders
@@ -406,15 +926,45 @@ JR:0
 GW: 1
 
 ```{r}
-work <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+work_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
-    mean_boda_income = mean(time_work, na.rm = TRUE),
-    median_boda_income = median(time_work, na.rm = TRUE),
-    sd_boda_income = sd(time_work, na.rm = TRUE),
-    min_boda_income = min(time_work, na.rm = TRUE),
-    max_boda_income = max(time_work, na.rm = TRUE)
+    mean_work = mean(time_work, na.rm = TRUE),
+    median_work = median(time_work, na.rm = TRUE),
+    sd_work = sd(time_work, na.rm = TRUE),
+    min_work = min(time_work, na.rm = TRUE),
+    max_work = max(time_work, na.rm = TRUE)
   )
-print(work)
+print(work_dep)
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0 & data_1$time_work, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1 & data_1$time_work, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$time_work[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$time_work[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Leisure Based on Dependents: Greenwheel vs Just Riders
@@ -422,15 +972,45 @@ JR:0
 GW: 1
 
 ```{r}
-leisure <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+leisure_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
-    mean_other_income = mean(leisure, na.rm = TRUE),
-    median_other_income = median(leisure, na.rm = TRUE),
-    sd_other_income = sd(leisure, na.rm = TRUE),
-    min_other_income = min(leisure, na.rm = TRUE),
-    max_other_income = max(leisure, na.rm = TRUE)
+    mean_leisure = mean(leisure, na.rm = TRUE),
+    median_leisure = median(leisure, na.rm = TRUE),
+    sd_leisure = sd(leisure, na.rm = TRUE),
+    min_leisure = min(leisure, na.rm = TRUE),
+    max_leisure = max(leisure, na.rm = TRUE)
   )
-print(leisure)
+print(leisure_dep)
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0 & data_1$leisure, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1 & data_1$leisure, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$leisure[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$leisure[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Home Care Based on Dependents: Greenwheel vs Just Riders
@@ -438,15 +1018,45 @@ JR:0
 GW: 1
 
 ```{r}
-home_labor <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+home_labor_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
-    mean_other_income = mean(home_labor, na.rm = TRUE),
-    median_other_income = median(home_labor, na.rm = TRUE),
-    sd_other_income = sd(home_labor, na.rm = TRUE),
-    min_other_income = min(home_labor, na.rm = TRUE),
-    max_other_income = max(home_labor, na.rm = TRUE)
+    mean_home = mean(home_labor, na.rm = TRUE),
+    median_home = median(home_labor, na.rm = TRUE),
+    sd_home = sd(home_labor, na.rm = TRUE),
+    min_home = min(home_labor, na.rm = TRUE),
+    max_home = max(home_labor, na.rm = TRUE)
   )
-print(home_labor)
+print(home_labor_dep)
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0 & data_1$home_labor, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1 & data_1$home_labor, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$home_labor[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$home_labor[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
 ```
 
 ##  Time Used for Sleep Based on Dependents: Greenwheel vs Just Riders
@@ -454,14 +1064,597 @@ JR:0
 GW: 1
 
 ```{r}
-sleep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
+sleep_dep <- data_1 %>% group_by(greenwheel_dummy, dep) %>%
   summarise(
-    mean_other_income = mean(sleep, na.rm = TRUE),
-    median_other_income = median(sleep, na.rm = TRUE),
-    sd_other_income = sd(sleep, na.rm = TRUE),
-    min_other_income = min(sleep, na.rm = TRUE),
-    max_other_income = max(sleep, na.rm = TRUE)
+    mean_sleep = mean(sleep, na.rm = TRUE),
+    median_sleep = median(sleep, na.rm = TRUE),
+    sd_sleep = sd(sleep, na.rm = TRUE),
+    min_sleep = min(sleep, na.rm = TRUE),
+    max_sleep = max(sleep, na.rm = TRUE)
   )
-print(sleep)
+print(sleep_dep)
+```
+
+```{r}
+# Find common dep groups
+dep_groups_group0 <- unique(data_1$dep[data_1$greenwheel_dummy == 0])
+dep_groups_group1 <- unique(data_1$dep[data_1$greenwheel_dummy == 1])
+common_dep_groups <- intersect(dep_groups_group0, dep_groups_group1)
+
+# Loop over common dep groups and perform t-tests
+results <- list()
+for (dep_value in common_dep_groups) {
+  count_group0 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 0 & data_1$sleep, na.rm = TRUE)
+  count_group1 <- sum(data_1$dep == dep_value & data_1$greenwheel_dummy == 1 & data_1$sleep, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$sleep[data_1$greenwheel_dummy == 0 & data_1$dep == dep_value],
+      data_1$sleep[data_1$greenwheel_dummy == 1 & data_1$dep == dep_value]
+    )
+    results[[as.character(dep_value)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (dep_value in names(results)) {
+  cat("Dep:", dep_value, "\n")
+  print(results[[dep_value]])
+  cat("\n")
+}
+
+```
+
+##  Boda Income Based on Hours Worked: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_boda_work <- data_1 %>% group_by(greenwheel_dummy, round(time_work) ) %>%
+  summarise(
+    mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
+    median_boda_income = median(daily_income_boda, na.rm = TRUE),
+    sd_boda_income = sd(daily_income_boda, na.rm = TRUE),
+    min_boda_income = min(daily_income_boda, na.rm = TRUE),
+    max_boda_income = max(daily_income_boda, na.rm = TRUE)
+  )
+print(income_boda_work)
+```
+
+```{r}
+# Find common time_work groups
+group0 <- unique(round(data_1$time_work[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$time_work[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$time_work) == i & data_1$greenwheel_dummy == 0 & data_1$daily_income_boda, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$time_work) == i & data_1$greenwheel_dummy == 1 & data_1$daily_income_boda, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & round(data_1$time_work) == i],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & round(data_1$time_work) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Worked:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Other Income Based on Hours Worked: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_other_work <- data_1 %>% group_by(greenwheel_dummy, round(time_work)) %>%
+  summarise(
+    mean_other_income = mean(other_income, na.rm = TRUE),
+    median_other_income = median(other_income, na.rm = TRUE),
+    sd_other_income = sd(other_income, na.rm = TRUE),
+    min_other_income = min(other_income, na.rm = TRUE),
+    max_other_income = max(other_income, na.rm = TRUE)
+  )
+print(income_other_work)
+```
+
+```{r}
+# Find common time_work groups
+group0 <- unique(round(data_1$time_work[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$time_work[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$time_work) == i & data_1$greenwheel_dummy == 0 & data_1$other_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$time_work) == i & data_1$greenwheel_dummy == 1 & data_1$other_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & round(data_1$time_work) == i],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & round(data_1$time_work) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Worked:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Gross Income Based on Hours Worked: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_gross_work <- data_1 %>% group_by(greenwheel_dummy, round(time_work)) %>%
+  summarise(
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
+  )
+print(income_gross_work)
+```
+
+```{r}
+# Find common time_work groups
+group0 <- unique(round(data_1$time_work[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$time_work[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$time_work) == i & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$time_work) == i & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & round(data_1$time_work) == i],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & round(data_1$time_work) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Worked:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Boda Income Based on Hours of Leisure: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_boda_leisure <- data_1 %>% group_by(greenwheel_dummy, leisure ) %>%
+  summarise(
+    mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
+    median_boda_income = median(daily_income_boda, na.rm = TRUE),
+    sd_boda_income = sd(daily_income_boda, na.rm = TRUE),
+    min_boda_income = min(daily_income_boda, na.rm = TRUE),
+    max_boda_income = max(daily_income_boda, na.rm = TRUE)
+  )
+print(income_boda_leisure)
+```
+
+```{r}
+# Find common leisure groups
+group0 <- unique(round(data_1$leisure[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$leisure[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$leisure) == i & data_1$greenwheel_dummy == 0 & data_1$daily_income_boda, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$leisure) == i & data_1$greenwheel_dummy == 1 & data_1$daily_income_boda, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & round(data_1$leisure) == i],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & round(data_1$leisure) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Leisured:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Other Income Based on Hours of Liesure: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_other_leisure <- data_1 %>% group_by(greenwheel_dummy, leisure) %>%
+  summarise(
+    mean_other_income = mean(other_income, na.rm = TRUE),
+    median_other_income = median(other_income, na.rm = TRUE),
+    sd_other_income = sd(other_income, na.rm = TRUE),
+    min_other_income = min(other_income, na.rm = TRUE),
+    max_other_income = max(other_income, na.rm = TRUE)
+  )
+print(income_other_leisure)
+```
+
+```{r}
+# Find common leisure groups
+group0 <- unique(round(data_1$leisure[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$leisure[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$leisure) == i & data_1$greenwheel_dummy == 0 & data_1$other_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$leisure) == i & data_1$greenwheel_dummy == 1 & data_1$other_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & round(data_1$leisure) == i],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & round(data_1$leisure) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Leisured:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Gross Income Based on Hours of Leisures: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_gross_leisure <- data_1 %>% group_by(greenwheel_dummy, leisure) %>%
+  summarise(
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
+  )
+print(income_gross_leisure)
+```
+
+```{r}
+# Find common leisure groups
+group0 <- unique(round(data_1$leisure[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$leisure[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$leisure) == i & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$leisure) == i & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & round(data_1$leisure) == i],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & round(data_1$leisure) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Leisured:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Boda Income Based on Hours of House Work: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_boda_home<- data_1 %>% group_by(greenwheel_dummy, home_labor ) %>%
+  summarise(
+    mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
+    median_boda_income = median(daily_income_boda, na.rm = TRUE),
+    sd_boda_income = sd(daily_income_boda, na.rm = TRUE),
+    min_boda_income = min(daily_income_boda, na.rm = TRUE),
+    max_boda_income = max(daily_income_boda, na.rm = TRUE)
+  )
+print(income_boda_home)
+```
+
+```{r}
+# Find common home labor groups
+group0 <- unique(round(data_1$home_labor[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$home_labor[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$home_labor) == i & data_1$greenwheel_dummy == 0 & data_1$daily_income_boda, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$home_labor) == i & data_1$greenwheel_dummy == 1 & data_1$daily_income_boda, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & round(data_1$leisure) == i],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & round(data_1$leisure) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours House Work:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Other Income Based on Hours of House Work: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_other_home <- data_1 %>% group_by(greenwheel_dummy, home_labor) %>%
+  summarise(
+    mean_other_income = mean(other_income, na.rm = TRUE),
+    median_other_income = median(other_income, na.rm = TRUE),
+    sd_other_income = sd(other_income, na.rm = TRUE),
+    min_other_income = min(other_income, na.rm = TRUE),
+    max_other_income = max(other_income, na.rm = TRUE)
+  )
+print(income_other_home)
+```
+
+```{r}
+# Find common home labor groups
+group0 <- unique(round(data_1$home_labor[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$home_labor[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common home labor groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$home_labor) == i & data_1$greenwheel_dummy == 0 & !is.na(data_1$other_income))
+  count_group1 <- sum(round(data_1$home_labor) == i & data_1$greenwheel_dummy == 1 & !is.na(data_1$other_income))
+  
+  if (count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & round(data_1$home_labor) == i],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & round(data_1$home_labor) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours House Work:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Gross Income Based on Hours of House Work: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_gross_home <- data_1 %>% group_by(greenwheel_dummy, home_labor) %>%
+  summarise(
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
+  )
+print(income_gross_home)
+```
+
+```{r}
+# Find common home labor groups
+group0 <- unique(round(data_1$home_labor[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$home_labor[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$home_labor) == i & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$home_labor) == i & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & round(data_1$leisure) == i],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & round(data_1$leisure) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours House Work:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Boda Income Based on Hours of Sleep Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_boda_sleep <- data_1 %>% group_by(greenwheel_dummy, sleep ) %>%
+  summarise(
+    mean_boda_income = mean(daily_income_boda, na.rm = TRUE),
+    median_boda_income = median(daily_income_boda, na.rm = TRUE),
+    sd_boda_income = sd(daily_income_boda, na.rm = TRUE),
+    min_boda_income = min(daily_income_boda, na.rm = TRUE),
+    max_boda_income = max(daily_income_boda, na.rm = TRUE)
+  )
+print(income_boda_sleep)
+```
+
+```{r}
+# Find common sleep  groups
+group0 <- unique(round(data_1$sleep[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$sleep[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$sleep) == i & data_1$greenwheel_dummy == 0 & data_1$daily_income_boda, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$sleep) == i & data_1$greenwheel_dummy == 1 & data_1$daily_income_boda, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 0 & round(data_1$sleep) == i],
+      data_1$daily_income_boda[data_1$greenwheel_dummy == 1 & round(data_1$sleep) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Sleep:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+##  Other Income Based on Hours of Sleep: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_other_sleep <- data_1 %>% group_by(greenwheel_dummy, sleep) %>%
+  summarise(
+    mean_other_income = mean(other_income, na.rm = TRUE),
+    median_other_income = median(other_income, na.rm = TRUE),
+    sd_other_income = sd(other_income, na.rm = TRUE),
+    min_other_income = min(other_income, na.rm = TRUE),
+    max_other_income = max(other_income, na.rm = TRUE)
+  )
+print(income_other_sleep)
+```
+
+```{r}
+# Find common leisure groups
+group0 <- unique(round(data_1$sleep[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$sleep[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$sleep) == i & data_1$greenwheel_dummy == 0 & data_1$other_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$sleep) == i & data_1$greenwheel_dummy == 1 & data_1$other_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$other_income[data_1$greenwheel_dummy == 0 & round(data_1$sleep) == i],
+      data_1$other_income[data_1$greenwheel_dummy == 1 & round(data_1$sleep) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours House Work:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
+```
+
+
+##  Gross Income Based on Hours of Sleep: Greenwheel vs Just Riders
+JR:0
+GW: 1
+
+```{r}
+income_gross_sleep <- data_1 %>% group_by(greenwheel_dummy, sleep) %>%
+  summarise(
+    mean_gross_income = mean(gross_income, na.rm = TRUE),
+    median_gross_income = median(gross_income, na.rm = TRUE),
+    sd_gross_income = sd(gross_income, na.rm = TRUE),
+    min_gross_income = min(gross_income, na.rm = TRUE),
+    max_gross_income = max(gross_income, na.rm = TRUE)
+  )
+print(income_gross_sleep)
+```
+
+```{r}
+# Find common sleep groups
+group0 <- unique(round(data_1$sleep[data_1$greenwheel_dummy == 0]))
+group1 <- unique(round(data_1$sleep[data_1$greenwheel_dummy == 1]))
+common <- intersect(group0, group1)
+
+# Loop over common time_work groups and perform t-tests
+results <- list()
+for (i in common) {
+  count_group0 <- sum(round(data_1$sleep) == i & data_1$greenwheel_dummy == 0 & data_1$gross_income, na.rm = TRUE)
+  count_group1 <- sum(round(data_1$sleep) == i & data_1$greenwheel_dummy == 1 & data_1$gross_income, na.rm = TRUE)
+  
+  if (!is.na(count_group0) && !is.na(count_group1) && count_group0 >= 2 && count_group1 >= 2) {
+    ttest_result <- t.test(
+      data_1$gross_income[data_1$greenwheel_dummy == 0 & round(data_1$sleep) == i],
+      data_1$gross_income[data_1$greenwheel_dummy == 1 & round(data_1$sleep) == i]
+    )
+    results[[as.character(i)]] <- ttest_result
+  }
+}
+
+# Print the results
+for (i in names(results)) {
+  cat("Hours Sleep:", i, "\n")
+  print(results[[i]])
+  cat("\n")
+}
+
 ```
 
