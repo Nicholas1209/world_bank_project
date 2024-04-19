@@ -8,9 +8,11 @@ output:
 ---
 
 # Set Up
-```{r}
+```{r, message = FALSE}
 library(haven)
+library(tidyverse)
 ```
+
 
 # Background Information
 
@@ -32,7 +34,7 @@ library(haven)
     
     7. HR: Household Recode
     
-    8. IR: Individual Recode
+    8. IR: Individual (Female) Recode
     
     9. KR: Children's Recode
     
@@ -51,9 +53,11 @@ library(haven)
 dhs_br_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_57803/KEBR8BDT/KEBR8BFL.DTA")
 ```
 
+## Household Recode
 ```{r}
-dhs_br_2022
+dhs_hr_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_57803/KEHR8BDT/KEHR8BFL.DTA")
 ```
+
 
 
 

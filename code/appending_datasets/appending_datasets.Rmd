@@ -27,6 +27,21 @@ greenwheel$greenwheel_dummy <- 1
 just_driver$greenwheel_dummy <- 0
 ```
 
+## Disposable Income
+```{r}
+greenwheel$disposable_income <- greenwheel$salary
+
+just_driver_no_na <- just_driver %>%
+  mutate(
+    payment_cost = coalesce(payment_cost, 0),
+    oil_cost = coalesce(oil_cost, 0),
+    app_payment_cost = coalesce(app_payment_cost, 0),
+    disposable_income = income_boda - payment_cost - oil_cost - app_payment_cost
+  )
+
+just_driver$disposable_income <- just_driver_no_na$disposable_income
+```
+
 ## Merge Variable
 ```{r}
 greenwheel$merge <- apply(greenwheel[c("salary", "home_labor", "leisure", "sleep")], 1, function(x) if (all(is.na(x))) 0 else 1)
