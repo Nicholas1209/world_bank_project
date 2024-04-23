@@ -1,0 +1,86 @@
+---
+title: "OLS Regression"
+author: "Kim Her"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Dataset
+
+```{r}
+suppressMessages(library(readr))
+suppressMessages(library(tidyverse))
+suppressMessages(library(fixest))
+data_1 <- suppressMessages(read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_df.csv'))
+data_1 <- data_1 %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           )
+```
+
+## Net
+
+```{r}
+mod_age<- lm(disposable_income ~ age,  data = data_1)
+summary(mod_age)
+cor(data_1$age, data_1$disposable_income, use = 'complete.obs')
+```
+
+```{r}
+mod_edu<- lm(disposable_income ~ educ,  data = data_1)
+summary(mod_edu)
+cor(data_1$educ, data_1$disposable_income, use = 'complete.obs')
+
+```
+```{r}
+mod_gen<- lm(disposable_income ~ gender,  data = data_1)
+summary(mod_gen)
+cor(data_1$gender, data_1$disposable_income, use = 'complete.obs')
+
+```
+```{r}
+mod_dep<- lm(disposable_income ~ dep,  data = data_1)
+summary(mod_dep)
+cor(data_1$dep, data_1$disposable_income, use = 'complete.obs')
+
+```
+
+```{r}
+mod_sleep<- lm(disposable_income ~ sleep,  data = data_1)
+summary(mod_dep)
+cor(data_1$sleep, data_1$disposable_income, use = 'complete.obs')
+
+```
+
+```{r}
+mod_home<- lm(disposable_income ~ home_labor,  data = data_1)
+summary(mod_home)
+cor(data_1$home_labor, data_1$disposable_income, use = 'complete.obs')
+```
+
+## Net
+```{r}
+mod1 <- lm(disposable_income~age+ dep + home_labor+ factor(greenwheel_dummy) + factor(educ), data = data_1)
+summary(mod1)
+```
+
+## Net
+```{r}
+mod2 <- feols(disposable_income~age+ dep + home_labor|greenwheel_dummy + educ, data = data_1)
+summary(mod2)
+```

@@ -1,0 +1,39 @@
+---
+title: "Quantile Regression"
+author: "Kim Her"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Dataset
+
+```{r}
+suppressMessages(library(readr))
+suppressMessages(library(tidyverse))
+suppressMessages(library(quantreg))
+data_1 <- suppressMessages(read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_df.csv'))
+data_1 <- data_1 %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           )
+```
+
+```{r}
+mod1 <- rq(disposable_income~age+ dep + home_labor+ factor(greenwheel_dummy) + factor(educ), data = data_1, tau = 0.75)
+summary(mod1)
+```
