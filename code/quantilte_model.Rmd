@@ -30,7 +30,14 @@ data_1 <- data_1 %>%
                educ == "Secondary (Form 4)" ~ 2,
                educ == "Tertiary (university or certificate)" ~ 3
            ),
-           )
+           insure = case_when(
+               insure == "No, I do not have" ~ 0,
+               insure == "No insurance" ~ 0,
+               insure == "Comprehensive insurance" ~ 1,
+               insure == "Third party insurance" ~ 1,
+               insure == "Yes, I do have" ~ 1
+           ),
+           acc = ifelse(acc_med == "No, I have never been in an accident that required medical care", 0, 1))
 ```
 
 ```{r}
