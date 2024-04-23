@@ -46,18 +46,32 @@ library(tidyverse)
 
 * The next two characters (e.g. "41") refer to the [phase and number of the survey]("https://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10141").
 
-# 2022
+# DHS Summary Statistics
 
-## Birth Recode
+![](/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/world_bank_project/code/data_exploration/dhs/images/dhs_summary_stats.png)
+
+## Notable Facts
+
+* In 2022, 58.2% of the women population have attained secondary or higher education compared to 61.4% for men.
+
+* In 2022, 67.1% of married women were employed in the last 12 months compared to 97.8% for men.
+
+# Birth Recode
 ```{r}
 dhs_br_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_57803/KEBR8BDT/KEBR8BFL.DTA")
 ```
 
-## Household Recode
+## Highest Education Level Attained
+
+* 0 = No Education, 1 = Primary, 2 = Secondary, 3 = Higher.
+
 ```{r}
-dhs_hr_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_57803/KEHR8BDT/KEHR8BFL.DTA")
+table(dhs_br_2022$v701) / sum(table(dhs_br_2022$v701))
 ```
 
+```{r}
+table(dhs_br_2022$v704)
+```
 
 
 
