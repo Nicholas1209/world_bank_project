@@ -1,0 +1,59 @@
+---
+title: "Matching Model"
+author: "Kim Her"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Dataset
+
+```{r}
+suppressMessages(library(readr))
+suppressMessages(library(tidyverse))
+suppressMessages(library(MatchIt))
+suppressMessages(library(lmtest))
+suppressMessages(library(sandwich))
+
+data_1 <- suppressMessages(read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_df.csv'))
+data_1 <- data_1 %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           insure = case_when(
+               insure == "No, I do not have" ~ 0,
+               insure == "No insurance" ~ 0,
+               insure == "Comprehensive insurance" ~ 1,
+               insure == "Third party insurance" ~ 1,
+               insure == "Yes, I do have" ~ 1
+           ),
+           acc = ifelse(acc_med == "No, I have never been in an accident that required medical care", 0, 1))
+```
+
+```{r}
+data_1 <- data_1[!is.na(data_1$disposable_income) & 
+                  !is.na(data_1$greenwheel_dummy) & 
+                  !is.na(data_1$age) & 
+                  !is.na(data_1$dep) & 
+                  !is.na(data_1$leisure) & 
+                  !is.na(data_1$educ) & 
+                  !is.na(data_1$acc) & 
+                  !is.na(data_1$insure), ]
+
+mod1 <- matchit(greenwheel_dummy ~ disposable_income +  age + dep + leisure + educ + acc + insure, data = data_1,)
+summary(mod1)
+```
+
