@@ -53,7 +53,7 @@ data_1 <- data_1[!is.na(data_1$disposable_income) &
                   !is.na(data_1$acc) & 
                   !is.na(data_1$insure), ]
 
-mod1 <- matchit(greenwheel_dummy ~ disposable_income +  age + dep + leisure + educ + acc + insure, data = data_1,)
+mod1 <- matchit(greenwheel_dummy ~  age + dep + leisure + educ + acc + insure, data = data_1,)
 summary(mod1)
 ```
 
