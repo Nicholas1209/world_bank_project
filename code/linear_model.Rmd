@@ -40,54 +40,15 @@ data_1 <- data_1 %>%
            acc = ifelse(acc_med == "No, I have never been in an accident that required medical care", 0, 1))
 ```
 
-## Net
-
-```{r}
-mod_age<- lm(disposable_income ~ age,  data = data_1)
-summary(mod_age)
-cor(data_1$age, data_1$disposable_income, use = 'complete.obs')
-```
-
-```{r}
-mod_edu<- lm(disposable_income ~ educ,  data = data_1)
-summary(mod_edu)
-cor(data_1$educ, data_1$disposable_income, use = 'complete.obs')
-
-```
-```{r}
-mod_gen<- lm(disposable_income ~ gender,  data = data_1)
-summary(mod_gen)
-cor(data_1$gender, data_1$disposable_income, use = 'complete.obs')
-
-```
-```{r}
-mod_dep<- lm(disposable_income ~ dep,  data = data_1)
-summary(mod_dep)
-cor(data_1$dep, data_1$disposable_income, use = 'complete.obs')
-
-```
-
-```{r}
-mod_sleep<- lm(disposable_income ~ sleep,  data = data_1)
-summary(mod_dep)
-cor(data_1$sleep, data_1$disposable_income, use = 'complete.obs')
-
-```
-
-```{r}
-mod_home<- lm(disposable_income ~ home_labor,  data = data_1)
-summary(mod_home)
-cor(data_1$home_labor, data_1$disposable_income, use = 'complete.obs')
-```
 
 ## Net
 ```{r}
-mod1 <- lm(disposable_income~age+ dep + leisure+ factor(greenwheel_dummy) + factor(educ) + factor(acc) + factor(insure), data = data_1)
+mod1 <- lm(disposable_income~age+ dep + leisure + factor(educ) + factor(acc) + factor(insure), data = data_1)
 summary(mod1)
 ```
 
 ## Net
 ```{r}
-mod2 <- feols(disposable_income~age+ dep + leisure|greenwheel_dummy + educ, data = data_1)
+mod2 <- lm(disposable_income~age+ dep + leisure+ factor(greenwheel_dummy) + factor(educ) + factor(acc) + factor(insure), data = data_1)
 summary(mod2)
 ```

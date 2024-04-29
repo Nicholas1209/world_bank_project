@@ -41,6 +41,11 @@ data_1 <- data_1 %>%
 ```
 
 ```{r}
-mod1 <- rq(disposable_income~age+ dep + home_labor+ factor(greenwheel_dummy) + factor(educ), data = data_1, tau = 0.75)
+mod1 <- rq(disposable_income~age+ dep + leisure+ factor(educ) + factor(acc) + factor(insure), data = data_1, tau = c(0.1,0.25,0.5,0.75,0.9))
 summary(mod1)
+```
+
+```{r}
+mod2 <- rq(disposable_income~age+ dep + leisure+ factor(greenwheel_dummy) + factor(educ) + factor(acc) + factor(insure), data = data_1, tau = c(0.1,0.25,0.5,0.75,0.9))
+summary(mod2)
 ```
