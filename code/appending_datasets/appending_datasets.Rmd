@@ -87,7 +87,7 @@ just_driver <- just_driver %>%
            start_pre = start,
            end_pre = end,
            time_work_prop = time_work_sample) %>% 
-    select(-less_hr, -other_income_1)
+    dplyr::select(-less_hr, -other_income_1)
 ```
 
 ```{r}
@@ -140,7 +140,14 @@ appended_df <- appended_df %>%
                educ == "Secondary (Form 4)" ~ 2,
                educ == "Tertiary (university or certificate)" ~ 3
            ),
-           )
+           insure = case_when(
+               insure == "Comprehensive insurance" ~ 1,
+               insure == "No insurance" ~ 0,
+               insure == "No, I do not have" ~ 0,
+               insure == "Third party insurance" ~ 1,
+               insure == "Yes, I do have" ~ 1
+           ),
+           acc_med = ifelse(acc_med == "Yes, I have previously been in an accident that required medical care", 1, 0))
 ```
 
 # Exporting Appended Dataset

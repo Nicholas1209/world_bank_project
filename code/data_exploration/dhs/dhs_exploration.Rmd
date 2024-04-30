@@ -69,9 +69,31 @@ dhs_br_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_5
 table(dhs_br_2022$v701) / sum(table(dhs_br_2022$v701))
 ```
 
+## Employment
 ```{r}
-table(dhs_br_2022$v704)
+# Husband occupation (grouped).
+
+table(dhs_br_2022$v705)
 ```
+
+```{r}
+# Respondent currently employed?
+
+table(dhs_br_2022$v714) / nrow(dhs_br_2022)
+```
+
+
+```{r}
+# Respondent occupation (grouped).
+
+table(dhs_br_2022$v717)
+```
+
+# Individual (Female) Recode
+```{r}
+dhs_ir_2022 <- read_dta("/Users/nicholas/Desktop/580/KE_2022_DHS_04092024_1933_57803/KEIR8BDT/KEIR8BFL.DTA")
+```
+
 
 
 
