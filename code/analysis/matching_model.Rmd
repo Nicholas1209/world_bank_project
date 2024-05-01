@@ -5,55 +5,90 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Set Up
+```{r, message=FALSE}
+library(tidyverse)
+library(Matching)
+library(readxl)
 ```
 
-## Load Dataset
-
-```{r}
-suppressMessages(library(readr))
-suppressMessages(library(tidyverse))
-suppressMessages(library(MatchIt))
-suppressMessages(library(lmtest))
-suppressMessages(library(sandwich))
-
-data_1 <- suppressMessages(read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_df.csv'))
-data_1 <- data_1 %>% 
-    mutate(gender = ifelse(gender == "Male", 1, 0),
-           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
-           mar = case_when(
-               mar == "No, I have never been married" ~ 0,
-               mar == "Yes, I am currently married and living together" ~ 1,
-               mar == "No, I have never been married" ~ 2
-           ),
-           educ = case_when(
-               educ == "Did not complete primary" ~ 0,
-               educ == "Primary" ~ 1,
-               educ == "Secondary (Form 4)" ~ 2,
-               educ == "Tertiary (university or certificate)" ~ 3
-           ),
-           insure = case_when(
-               insure == "No, I do not have" ~ 0,
-               insure == "No insurance" ~ 0,
-               insure == "Comprehensive insurance" ~ 1,
-               insure == "Third party insurance" ~ 1,
-               insure == "Yes, I do have" ~ 1
-           ),
-           acc = ifelse(acc_med == "No, I have never been in an accident that required medical care", 0, 1))
+# Loading Dataset
+```{r, message=FALSE}
+df <- read_xlsx('/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx')
 ```
 
 ```{r}
-data_1 <- data_1[!is.na(data_1$disposable_income) & 
-                  !is.na(data_1$greenwheel_dummy) & 
-                  !is.na(data_1$age) & 
-                  !is.na(data_1$dep) & 
-                  !is.na(data_1$leisure) & 
-                  !is.na(data_1$educ) & 
-                  !is.na(data_1$acc) & 
-                  !is.na(data_1$insure), ]
-
-mod1 <- matchit(greenwheel_dummy ~  age + dep + leisure + educ + acc + insure, data = data_1,)
-summary(mod1)
+df <- df[!is.na(df$disposable_income) &
+         !is.na(df$greenwheel_dummy) &
+         !is.na(df$age) &
+         !is.na(df$dep) &
+         !is.na(df$leisure) &
+         !is.na(df$educ) &
+         !is.na(df$acc_med) &
+         !is.na(df$insure), ]
 ```
 
+# Matching
+
+## Matching on Age and Education
+```{r}
+df1 <- df[!is.na(df$age) &
+         !is.na(df$educ), ]
+```
+
+```{r}
+matching_mod1 <- Match(Y = df1$disposable_income,
+                       Tr = df1$greenwheel_dummy,
+                       X = df1[,c("age", "educ")],
+                       M = 1,
+                       estimand = "ATE")
+
+summary(matching_mod1)
+```
+
+## Matching Using More Covariates
+```{r}
+df2 <- df[!is.na(df$disposable_income) &
+         !is.na(df$greenwheel_dummy) &
+         !is.na(df$age) &
+         !is.na(df$dep) &
+         !is.na(df$leisure) &
+         !is.na(df$educ) &
+         !is.na(df$acc_med) &
+         !is.na(df$insure), ]
+```
+
+```{r}
+covariates <- df2 %>% 
+    dplyr::select(age, educ, insure, acc_med, dep, leisure)
+
+matching_mod2 <- Match(Y = df2$disposable_income,
+                       Tr = df2$greenwheel_dummy,
+                       X = covariates,
+                       M = 1,
+                       estimand = "ATE")
+
+summary(matching_mod2)
+```
+
+## Matching On P-Scores
+```{r}
+logit_mod1 <- glm(greenwheel_dummy ~ age + educ + insure + acc_med + dep + leisure, data = df2, family = binomial(link = "logit"))
+summary(logit_mod1)
+```
+
+```{r}
+p_score <- predict(logit_mod1, newdata = df2, type = "response")
+
+df2 <- cbind(df2, p_score)
+```
+
+```{r}
+matching_mod3 <- Match(Y = df2$disposable_income,
+                       Tr = df2$greenwheel_dummy,
+                       X = df2$p_score,
+                       M = 1,
+                       estimand = "ATE")
+
+summary(matching_mod3)
+```
