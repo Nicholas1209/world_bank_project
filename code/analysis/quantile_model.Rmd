@@ -1,8 +1,9 @@
 ---
-title: "OLS Regression"
+title: "Quantile Regression"
 author: "Kim Her"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +15,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 suppressMessages(library(readr))
 suppressMessages(library(tidyverse))
-suppressMessages(library(fixest))
+suppressMessages(library(quantreg))
+suppressMessages(library("sandwich"))
+
 data_1 <- suppressMessages(read_csv('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_df.csv'))
 data_1 <- data_1 %>% 
     mutate(gender = ifelse(gender == "Male", 1, 0),
@@ -40,15 +43,11 @@ data_1 <- data_1 %>%
            acc = ifelse(acc_med == "No, I have never been in an accident that required medical care", 0, 1))
 ```
 
-
-## Net
 ```{r}
-mod1 <- lm(disposable_income~greenwheel_dummy, data = data_1)
-summary(mod1)
+mod2 <- rq(disposable_income~age+ dep + leisure+ factor(greenwheel_dummy) + factor(educ) + factor(acc) + factor(insure), data = data_1, tau = c(0.1,0.25,0.5,0.75,0.9))
+summary(mod2, se = 'nid')
 ```
 
-## Net
-```{r}
-mod2 <- lm(disposable_income~age+ dep + leisure+ factor(greenwheel_dummy) + factor(educ) + factor(acc) + factor(insure), data = data_1)
-summary(mod2)
-```
+
+
+
