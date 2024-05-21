@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Load Data
 
 ```{r, message=FALSE}
 library(tidyverse)
@@ -23,6 +24,9 @@ gw_daily = read_excel("C:/Users/yengl/OneDrive/Documents/World Bank Project/raw_
 gw_pre = read_excel("C:/Users/yengl/OneDrive/Documents/World Bank Project/raw_data/gw_pre.xlsx")
 ```
 
+
+# Check Column Names
+
 ```{r}
 colnames(gw_pre)
 colnames(gw_daily)
@@ -30,6 +34,8 @@ colnames(ice_pre)
 colnames(ice_daily)
 
 ```
+
+# Rename Columns
 
 ```{r}
 gw_pre <- gw_pre %>% 
@@ -46,6 +52,7 @@ ice_daily <- ice_daily %>%
 
 ```
 
+# Compared Columns
 
 ```{r}
 gw_pre <- gw_pre[, colSums(is.na(gw_pre)) < nrow(gw_pre)]
@@ -53,6 +60,7 @@ gw_daily <- gw_daily[, colSums(is.na(gw_daily)) < nrow(gw_daily)]
 ice_pre <- ice_pre[, colSums(is.na(ice_pre)) < nrow(ice_pre)]
 ice_daily <- ice_daily[, colSums(is.na(ice_daily)) < nrow(ice_daily)]
 ```
+
 
 # Filter gw_pre to include only rows with unique phone numbers
 
@@ -63,12 +71,14 @@ gw_pre <- gw_pre %>%
   filter(phone %in% unique_numbers)
 ```
 
+# Find Unique Names in GreenWheel Data
 ```{r}
 unique(gw_pre$name)
 sort(unique(gw_daily$name))
 
 ```
 
+# Match Names in Greenwheel Pre-Survey
 
 ```{r}
 gw_pre <- gw_pre %>%
@@ -95,7 +105,7 @@ gw_pre <- gw_pre[!duplicated(gw_pre$name), ]
 unique(gw_pre$name)
 ```
 
-
+# Match Names in Greenwheel Daily Data
 ```{r}
  gw_daily <- gw_daily %>%
   mutate(name = case_when(
@@ -147,13 +157,14 @@ unique(gw_pre$name)
 sort(unique(gw_daily$name))
 ```
 
+# Merge GreenWheel
 
 ```{r}
 gw <- merge(gw_pre, gw_daily, by = 'name', all = TRUE)
 unique(gw$name)
 ```
 
-
+# Create Respondent ID for Greenwheel
 
 ```{r}
 
@@ -168,7 +179,11 @@ gw$other_income1 <- replace(gw$other_income, is.na(gw$other_income), 0)
 
 gw$gross_income <- gw$daily_income_boda + gw$other_income1
 
-# Merge ice_pre and ice_daily data frames on 'Respondent ID' using outer join
+```
+
+# Merge Just Rider
+
+```{r}
 ice <- merge(ice_pre, ice_daily, by = 'Respondent ID', all = TRUE)
 
 # Calculate gross income for each respondent in the ice data frame
@@ -178,9 +193,8 @@ ice$other_income <- replace(ice$other_income1, ice$other_income1 == 0, NA)
 ice$gross_income <- ice$daily_income_boda + ice$other_income1
 ```
 
-# Pre Sanity Checks
-
 ## Identification Variable
+
 ```{r}
 greenwheel <- gw
 just_driver <- ice
@@ -189,6 +203,7 @@ just_driver$greenwheel_dummy <- 0
 ```
 
 ## Disposable Income
+
 ```{r}
 greenwheel$disposable_income <- greenwheel$daily_income_boda
 
@@ -204,6 +219,7 @@ just_driver$disposable_income <- just_driver_no_na$disposable_income
 ```
 
 ## Merge Variable
+
 ```{r}
 greenwheel$merge <- apply(greenwheel[c("daily_income_boda", "home_labor", "leisure", "sleep")], 1, function(x) if (all(is.na(x))) 0 else 1)
 
@@ -211,6 +227,7 @@ just_driver$merge <- 1
 ```
 
 ## Column Names
+
 ```{r}
 if (identical(colnames(greenwheel), colnames(just_driver)) == TRUE){
     print("The column names of both datasets are the same.")
@@ -228,6 +245,7 @@ setdiff(colnames(just_driver), colnames(greenwheel))
 ```
 
 ## Renaming Columns
+
 ```{r}
 greenwheel <- greenwheel %>%
   rename(date = start_daily) %>%
@@ -299,6 +317,7 @@ just_driver$'_submission_time.y' <- with_tz(ymd_hms(just_driver$'_submission_tim
 
 
 ## Number of Columns
+
 ```{r}
 cat("The appended dataset should have", nrow(greenwheel) + nrow(just_driver), "rows.")
 ```
@@ -315,6 +334,7 @@ just_driver <- just_driver %>%
 
 
 # Appending Datasets
+
 ```{r}
 appended_df <- bind_rows(just_driver, greenwheel)
 
@@ -326,6 +346,7 @@ if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
 ```
 
 # Label Encoding The Columns
+
 ```{r, eval=FALSE}
 appended_df <- appended_df %>% 
     mutate(gender = ifelse(gender == "Male", 1, 0),
@@ -352,6 +373,7 @@ appended_df <- appended_df %>%
 ```
 
 # Exporting Appended Dataset
+
 ```{r}
 write.xlsx(appended_df, file = "appended_df.xlsx")
 ```
