@@ -1,0 +1,357 @@
+---
+title: "Data Cleaning and Appending"
+author: "Kim Her"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(openxlsx)
+library(dplyr)
+ice_pre = read_excel("C:/Users/yengl/OneDrive/Documents/World Bank Project/raw_data/ice_pre.xlsx")
+ice_daily = read_excel("C:/Users/yengl/OneDrive/Documents/World Bank Project/raw_data/ice_daily.xlsx")
+
+gw_daily = read_excel("C:/Users/yengl/OneDrive/Documents/World Bank Project/raw_data/gw_daily.xlsx")
+gw_pre = read_excel("C:/Users/yengl/OneDrive/Documents/World Bank Project/raw_data/gw_pre.xlsx")
+```
+
+```{r}
+colnames(gw_pre)
+colnames(gw_daily)
+colnames(ice_pre)
+colnames(ice_daily)
+
+```
+
+```{r}
+gw_pre <- gw_pre %>% 
+    rename(start_pre = "start", end_pre = "end",  agree = "The purpose of the study is to measure overall impact of the Electric Vehicle (EV) Guaranteed Salary Scheme in comparison to traditional ICE boda labor market. The information collected through this survey is exclusively for research purposes. We assure you that all responses will be treated with the utmost confidentiality. Personal information will not be disclosed or shared with third parties without your explicit consent and all data collected during this study will be securely stored and handled with care. Upon the completion of the study, the data will be disposed of responsibly, ensuring the privacy and confidentiality of all participants. Participation in this survey is completely voluntary. You have the right to withdraw from the study at any point without any adverse consequences.", name ="What is your full name?", age = "What is your age?", gender = "What is your gender?", dep =  "How many people are majorly or entirely dependent on your income?", head =  "Are you the head of the household?", mar = "Are you married?", educ = "What level of education have you completed?", pre = "What was your previous work before being in the boda boda sector?", pre_salary = "Did your previous work provide you with a salary?", stage = "What is the name of your stage?", app = "Outside of your employment with Greenwheels, do you use any other delivery or ride-hailing apps to generate income?", daily_income_boda = "What is the agreed-upon daily payments?", bike = "Do you have your own motorcycle(s) besides Greenwheels provided boda?", why = "What is the main reason that you are under Greenwheels program although you have your own motocycle", insure = "Do you currently have insurance on your personal motocycle?", share = "Are you regularly sharing your personal motorcycle with anyone else?", content = "Does the Greenwheels shift model offer you sufficient flexibility with your your working hours?", sacco = "Are you a member of a SACCO?", license = "Do you currently have a valid driver's license?", know = "Do you know well about your insurance program covered by Greenwheels?", acc_med = "Have you ever been in a major accident that required medical care?", acc_insure = "Did you have third party, comprehensive, or medical insurance at the time?", acc_cover = "Were you able to have your costs covered by your insurance?", phone = "What is your phone number?", name_1 = "What is your name?", bike_1 =  "Do you have your own boda(s) besides Greenwheels provided boda?", share_1 =  "Are you regularly sharing the motorcycle with anyone else?", content_1 = "Are you content with the number of hours you currently work or would you rather work less hours?")
+
+gw_daily <- gw_daily %>% 
+    rename(start_daily= "start", start_end= "end",agee_2 = "The purpose of the study is to measure overall impact of the Electric Vehicle (EV) Guaranteed Salary Scheme in comparison to traditional ICE boda labor market. The information collected through this survey is exclusively for research purposes. We assure you that all responses will be treated with the utmost confidentiality. Personal information will not be disclosed or shared with third parties without your explicit consent and all data collected during this study will be securely stored and handled with care. Upon the completion of the study, the data will be disposed of responsibly, ensuring the privacy and confidentiality of all participants. Participation in this survey is completely voluntary. You have the right to withdraw from the study at any point without any adverse consequences.", name = "What is your full name?", gw = "Please enter your Greenwheels MPesa Account Number (e.g. HC23)", shift_start = "What time did you start work yesterday?", shift_end = "What time did you finish work yesterday?", other_work = "Outside of employment with Greenwheels, did you earn any other income?", other_income = "How much money did you make or receive from other sources yesterday?", reject = "Did you reject any trips yesterday?", reject_num = "How many trips did you reject yesterday?", reject_reason = "What was the main reason(s) for the reject?", far_home = "What was the main reason(s) for the reject?/The passenger was not going in the direction of my home", unsafe = "What was the main reason(s) for the reject?/ The destination is not safe", price_dist = "What was the main reason(s) for the reject?/The price and distance they were offering wasn't enough", card = "What was the main reason(s) for the reject?/The passenger wanted to use card to pay", reject_other = "What was the main reason(s) for the reject?/Other", home_labor = "How many hours did you spend taking care of the household (watching children, cooking, cleaning, etc) yesterday?", leisure = "How many hours did you spend doing leisure activites (e.g. relaxing with friends or family, drinking, playing sports) yesterday?", sleep = "How many hours did you spend sleeping yesterday (including last night)?", app_payment = "If you are using an app, did you make any payments to the app today for commission?", app_payment_cost = "How much money did you send to the app for commission / back payments today?", name_1 = "What is your name?", mpesa_phone = "What is your MPesa phone number?", day_before = "What day was it yesterday?", payment_cost = "Did you make any payments for your motorcycle yesterday?")
+
+ice_pre <- ice_pre %>% 
+    rename(start_pre = "start", end_pre = "end", age = "What is your age?", gender = "What is your gender?", dep = "How many people are majorly or entirely dependent on your income?", head = "Are you the head of the household?", head_not_self = "Who is the head of the household?", mar = "Are you married?", educ = "What level of education have you *completed*?", pre = "What was your previous work before being in the boda boda sector?", pre_salary = "Did your previous work provide you with a salary?", stage = "What is the name of your stage?", app = "Do you currently use an app to get passengers or delivery trips?", paying = "Are you currently paying off a boda boda loan?", loan_length = "What is the agreed-upon duration of the loan / lease in months?", loan_comp = "How many months of the loan have you completed?", weekly_pay = "What is the agreed-upon weekly payment?", share = "Are you regularly sharing the motorcycle with anyone else?", content = "Are you content with the number of hours you currently work or would you rather work less hours?", why = "Other: Why would you like to work less hours?", sacco = "Are you a member of a SACCO?", license = "Do you currently have a valid driver's license?", insure = "Do you currently have insurance? Please select which insurance you have now.", insure_third = "Do you currently have insurance? Please select which insurance you have now./Third party insurance", insure_comp = "Do you currently have insurance? Please select which insurance you have now./Comprehensive insurance", insure_med = "Do you currently have insurance? Please select which insurance you have now./Medical insurance", insure_life = "Do you currently have insurance? Please select which insurance you have now./Life insurance", insure_none = "Do you currently have insurance? Please select which insurance you have now./No insurance", acc_med = "Have you ever been in a major accident that required medical care?", acc_insure = "Did you have third party, comprehensive, or medical insurance at the time?", acc_cover = "Were you able to have your costs covered by your insurance?")
+
+ice_daily <- ice_daily %>% 
+    rename(date = "What day was it yesterday?", shift_start = "What time did you start work yesterday?", shift_end = "What time did you finish work yesterday?", petrol = "How much did you spend on petrol yesterday?", oil = "Did you buy oil yesterday?", oil_cost = "If you bought oil, how much did you spend on it?", payment = "Did you make any payments for your motorcycle yesterday?", payment_cost = "How much did you spend on motorcycle repayment yesterday?", daily_income_boda = "How much money did you make *in total* from your work as a boda boda rider yesterday?", other_income = "How much money did you make or receive from other sources yesterday?", passenger_off = "How many offline (no app), passenger trips did you have yesterday?", deliv_off = "How many offline (no app), delivery trips did you have yesterday?", passenger_on = "How many online (APP), passenger trips did you have yesterday?", deliv_on = "How many online (APP), delivery trips did you have yesterday?", reject = "Did you reject any trips yesterday?", reject_num = "How many trips did you reject yesterday?", reject_time = "Tell me about *one* of your rejected trips yesterday - roughly what time was it?", reject_reason = "For that same rejected trip - why did you reject the trip?", reject_other = "Other: For that same rejected trip - why did you reject the trip?", app_payment = "If you are using an app, did you make any payments to the app today for commission?", app_payment_cost = "How much money did you send to the app for commission / back payments today?", home_labor = "How many hours did you spend taking care of the household (watching children, cooking, cleaning, etc) yesterday?", leisure = "How many hours did you spend doing leisure activites (e.g. relaxing with friends or family, drinking, playing sports) yesterday?", sleep = "How many hours did you spend sleeping yesterday (including last night)?", mpesa_phone = "What is your Mpesa phone number?")
+
+```
+
+
+```{r}
+gw_pre <- gw_pre[, colSums(is.na(gw_pre)) < nrow(gw_pre)]
+gw_daily <- gw_daily[, colSums(is.na(gw_daily)) < nrow(gw_daily)]
+ice_pre <- ice_pre[, colSums(is.na(ice_pre)) < nrow(ice_pre)]
+ice_daily <- ice_daily[, colSums(is.na(ice_daily)) < nrow(ice_daily)]
+```
+
+# Filter gw_pre to include only rows with unique phone numbers
+
+```{r}
+unique_numbers <- unique(gw_pre$phone)
+
+gw_pre <- gw_pre %>%
+  filter(phone %in% unique_numbers)
+```
+
+```{r}
+unique(gw_pre$name)
+sort(unique(gw_daily$name))
+
+```
+
+
+```{r}
+gw_pre <- gw_pre %>%
+  mutate(name = case_when(
+    name == "Alfred otindo"~"Alfred otindo jasimba",
+    name == "Alfred jasimba"~"Alfred otindo jasimba",
+    name == "Augustine  ogega"~"Augustine ogega",    
+    name == "Dennis Kemboi" ~ "Dennis Kemboi korir",
+    name == "Dennis Kemboi korir" ~ "Dennis korir kemboi",
+    name == "Esbon Araka Matena" ~ "Esbon Matena",
+    name == "Fred Gichana nyakundi" ~ "FRED Gichana Nyakundi",
+    name == "Isaac Ogira" ~ "Isaak Ouma Ogira",
+    name == "John mwise ndichu" ~ "John Ndichu", 
+    name == "Joseph mukoya" ~ "Joseph mukoya barasa", 
+    name == "Justus ochieng" ~ "Jusutus ochieng", 
+    name == "Nicholus kyalo" ~ "Nicholus kyalo Samuel",
+    name == "Nicholus samuel" ~ "Nicholus kyalo Samuel",
+    name == "Ronald Kennedy murende" ~ "Ronald kennedy murende",
+    name == "Ronald kennedy murende" ~ "Ronald murende",
+    name == "thomas" ~ "Thomas wamukota khisa"    ,TRUE ~ name
+  ))
+
+gw_pre <- gw_pre[!duplicated(gw_pre$name), ]
+unique(gw_pre$name)
+```
+
+
+```{r}
+ gw_daily <- gw_daily %>%
+  mutate(name = case_when(
+    name == "Ali Hassan" ~ "Ali hassan",
+    name == "Amos Onyancha Nyangaresi" ~ "Amos onyango ogola",
+    name == "AMOS ONYANGO OGOLA" ~ "Amos onyango ogola", 
+    name == "Benard marigiri nyabuto"  ~ "Benard marigiri",
+    name == "DANIEL Mutunga" ~  "DANIEL MANGA MUTUNGA",
+    name == "Denis  Simiyu" ~ "Denis Simiyu",
+    name == "Dennis Ndungu" ~ "Dennis ndungu",
+    name == "Dennis ndungu Wambui" ~ "Dennis ndungu",
+    name == "Ellyas mohamed liveha"  ~ "Ellyas Mohamed  Liveha",
+    name == "Ellyas Mohamed Liveha"  ~ "Ellyas Mohamed  Liveha",
+    name == "ELLYAS MOHAMED LIVEHA" ~  "Ellyas Mohamed  Liveha",
+    name == "Ellyas mohammed liveha" ~  "Ellyas Mohamed  Liveha",
+    name == "Emanuel odhiambo onditi"  ~ "Emanuel onditi",
+    name == "Evans 3" ~ "Evans Gitau",
+    name == "evans muli mutungaa" ~ "evans muli mutunga", 
+    name == "evans mutunga" ~ "evans muli mutunga", 
+    name == "Fred Gichana nyakundi"  ~ "FRED Gichana Nyakundi",
+    name == "George Omondi" ~ "George omondi",
+    name == "GEORGE OMONDI" ~ "George omondi",
+    name == "Gilbert kiprotich"  ~  "Gilbert Kiprotich",
+    name == "Hesbon" ~ "Hesbon Mokaya Ondieki",   
+    name == "Hesbon mokaya Ondieki"  ~ "Hesbon Mokaya Ondieki",
+    name == "Hillary Mwangi"~"Hillary mwangi",
+    name == "Isaac Ogira" ~   "Isaak Ouma Ogira",
+    name == "Isaac Ouma" ~ "Isaak Ouma Ogira",
+    name == "John Omongo" ~ "John Onkoba Omongo",
+    name == "Kennedy juma wamucha"  ~ "Kennedy wamucha", 
+    name == "Lameck  airo misolo"   ~ "Lameck airo misolo",
+    name == "Leonard musani" ~ "LEONARD MUSANI",
+    name == "Mick Munyasa"  ~ "Mick Ngokho Munyasa",
+    name == "Ndubi Nashon" ~ "Ndubi Ayiecha Nashon",
+    name == "Nicholas" ~ "Nicholus kyalo Samuel",
+    name == "Nicholas kyalo"  ~ "Nicholus kyalo Samuel",
+    name == "Nicholas samuel"  ~ "Nicholus kyalo Samuel", 
+    name == "Nicholus kyalo" ~ "Nicholus kyalo Samuel",
+    name == "PAUL ODUNDO"~ "PAUL OKELLO ODUNDO",
+    name == "Peter kipish" ~ "Peter Kipish",
+    name == "Ronald Kennedy murende" ~ "Ronald murende",
+    name == "Simon" ~ "Simon mulako",
+    name == "Thadeus omwenga"  ~   "Thadeus Omwenga",
+    name == "thomas wamukota khisa" ~ "Thomas wamukota khisa",
+    name == "thomas Wamukota khisa" ~ "Thomas wamukota khisa",
+    name == "Titus simiyu nyongesa" ~ "Titus nyongesa", TRUE ~ name
+  ))
+
+sort(unique(gw_daily$name))
+```
+
+
+```{r}
+gw <- merge(gw_pre, gw_daily, by = 'name', all = TRUE)
+unique(gw$name)
+```
+
+
+
+```{r}
+
+# Create a unique identifier for each row based on 'name'
+gw$`Respondent ID` <- as.character(as.integer(factor(gw$name))) 
+
+# Factorize 'name' and convert to string
+gw$`Respondent ID` <- paste('GW', gw$`Respondent ID`, sep = '')
+
+# Calculate gross income for each respondent
+gw$other_income1 <- replace(gw$other_income, is.na(gw$other_income), 0)
+
+gw$gross_income <- gw$daily_income_boda + gw$other_income1
+
+# Merge ice_pre and ice_daily data frames on 'Respondent ID' using outer join
+ice <- merge(ice_pre, ice_daily, by = 'Respondent ID', all = TRUE)
+
+# Calculate gross income for each respondent in the ice data frame
+ice$other_income1 = ice$other_income
+ice$other_income <- replace(ice$other_income1, ice$other_income1 == 0, NA)
+
+ice$gross_income <- ice$daily_income_boda + ice$other_income1
+```
+
+# Pre Sanity Checks
+
+## Identification Variable
+```{r}
+greenwheel <- gw
+just_driver <- ice
+greenwheel$greenwheel_dummy <- 1
+just_driver$greenwheel_dummy <- 0
+```
+
+## Disposable Income
+```{r}
+greenwheel$disposable_income <- greenwheel$daily_income_boda
+
+just_driver_no_na <- just_driver %>%
+  mutate(
+    payment_cost = coalesce(payment_cost, 0),
+    oil_cost = coalesce(oil_cost, 0),
+    app_payment_cost = coalesce(app_payment_cost, 0),
+    disposable_income = daily_income_boda - payment_cost - oil_cost - app_payment_cost
+  )
+
+just_driver$disposable_income <- just_driver_no_na$disposable_income
+```
+
+## Merge Variable
+```{r}
+greenwheel$merge <- apply(greenwheel[c("daily_income_boda", "home_labor", "leisure", "sleep")], 1, function(x) if (all(is.na(x))) 0 else 1)
+
+just_driver$merge <- 1
+```
+
+## Column Names
+```{r}
+if (identical(colnames(greenwheel), colnames(just_driver)) == TRUE){
+    print("The column names of both datasets are the same.")
+} else{
+    print("The column names of the datasets don't match")
+}
+```
+
+```{r}
+setdiff(colnames(greenwheel), colnames(just_driver))
+```
+
+```{r}
+setdiff(colnames(just_driver), colnames(greenwheel))
+```
+
+## Renaming Columns
+```{r}
+greenwheel <- greenwheel %>%
+  rename(date = start_daily) %>%
+  select(-name, -agree, -phone, -start_end, -agee_2)
+
+just_driver <- just_driver %>% 
+    select(-'_submitted_by.x', -'_submitted_by.y')
+```
+
+```{r}
+setdiff(colnames(greenwheel), colnames(just_driver))
+```
+
+```{r}
+just_driver$bike <- NA
+just_driver$why <- NA
+just_driver$know <- NA
+just_driver$gw <- NA
+just_driver$other_work <- NA
+just_driver$far_home <- NA
+just_driver$unsafe <- NA
+just_driver$price_dist <- NA
+just_driver$card <- NA
+```
+
+
+```{r}
+setdiff(colnames(just_driver), colnames(greenwheel))
+```
+
+```{r}
+greenwheel$head_not_self <- NA
+greenwheel$paying <- NA
+greenwheel$loan_length <- NA
+greenwheel$loan_comp <- NA
+greenwheel$weekly_pay <- NA
+greenwheel$insure_third <- NA
+greenwheel$insure_comp <- NA
+greenwheel$insure_med <- NA
+greenwheel$insure_life <- NA
+greenwheel$insure_none <- NA
+greenwheel$petrol <- NA
+greenwheel$oil_cost <- NA
+greenwheel$payment_cost <- NA
+greenwheel$deliv_off <- NA
+greenwheel$deliv_on <- NA
+greenwheel$app_payment <- NA
+greenwheel$oil <- NA
+greenwheel$payment <- NA
+greenwheel$passenger_off <- NA
+greenwheel$passenger_on <- NA
+greenwheel$reject_time <- NA
+greenwheel$app_payment_cost <- NA
+```
+
+
+```{r}
+greenwheel$reject_other <- as.integer(greenwheel$reject_other)
+just_driver$reject_other <- as.integer(just_driver$reject_other)
+```
+
+```{r}
+just_driver$start_pre <- with_tz(ymd_hms(just_driver$start_pre), "UTC")
+just_driver$end_pre <- with_tz(ymd_hms(just_driver$end_pre), "UTC")
+just_driver$'_submission_time.x' <- with_tz(ymd_hms(just_driver$'_submission_time.x'), "UTC")
+just_driver$'_submission_time.y' <- with_tz(ymd_hms(just_driver$'_submission_time.y'), "UTC")
+
+```
+
+
+## Number of Columns
+```{r}
+cat("The appended dataset should have", nrow(greenwheel) + nrow(just_driver), "rows.")
+```
+
+```{r}
+just_driver <- just_driver %>%
+  mutate(age = as.double(age))
+
+just_driver <- just_driver %>%
+  mutate(dep = as.double(dep))
+
+  
+```
+
+
+# Appending Datasets
+```{r}
+appended_df <- bind_rows(just_driver, greenwheel)
+
+if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
+    print("The appending was successful!")
+} else{
+    print("Something went wrong.")
+}
+```
+
+# Label Encoding The Columns
+```{r, eval=FALSE}
+appended_df <- appended_df %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           insure = case_when(
+               insure == "Comprehensive insurance" ~ 1,
+               insure == "No insurance" ~ 0,
+               insure == "No, I do not have" ~ 0,
+               insure == "Third party insurance" ~ 1,
+               insure == "Yes, I do have" ~ 1
+           ),
+           acc_med = ifelse(acc_med == "Yes, I have previously been in an accident that required medical care", 1, 0))
+```
+
+# Exporting Appended Dataset
+```{r}
+write.xlsx(appended_df, file = "appended_df.xlsx")
+```
