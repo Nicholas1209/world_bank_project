@@ -1,0 +1,283 @@
+---
+title: "Summary Statistics"
+author: "Kim Her"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+suppressMessages(library(readxl))
+suppressMessages(library(tidyverse))
+data_1 <- suppressMessages(read_excel('C:/Users/yengl/OneDrive/Documents/World Bank Project/appended_df.xlsx'))
+
+data_1 <- data_1 %>% 
+    mutate(gender = ifelse(gender == "Male", 1, 0),
+           head = ifelse(head == "Yes, I am the head of the household", 1, 0),
+           mar = case_when(
+               mar == "No, I have never been married" ~ 0,
+               mar == "Yes, I am currently married and living together" ~ 1,
+               mar == "No, I have never been married" ~ 2
+           ),
+           educ = case_when(
+               educ == "Did not complete primary" ~ 0,
+               educ == "Primary" ~ 1,
+               educ == "Secondary (Form 4)" ~ 2,
+               educ == "Tertiary (university or certificate)" ~ 3
+           ),
+           insure = case_when(
+               insure == "Comprehensive insurance" ~ 1,
+               insure == "No insurance" ~ 0,
+               insure == "No, I do not have" ~ 0,
+               insure == "Third party insurance" ~ 1,
+               insure == "Yes, I do have" ~ 1
+           ),
+           acc = ifelse(acc_med == "Yes, I have previously been in an accident that required medical care", 1, 0))
+
+data_1 <- data_1 %>%
+  filter(data_1$daily_income_boda < 3*sd(data_1$daily_income_boda, na.rm=TRUE))
+```
+
+Age: Greenwheel vs Just Riders
+JR:0 GW: 1
+```{r}
+age <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(age, na.rm = TRUE),
+    median = median(age, na.rm = TRUE),
+    sd = sd(age, na.rm = TRUE),
+    min = min(age, na.rm = TRUE),
+    max = max(age, na.rm = TRUE)
+  )
+print(age)
+t.test(data_1$age ~ data_1$greenwheel_dummy)
+```
+
+Gender: Greenwheel vs Just Riders
+```{r}
+gender <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(gender, na.rm = TRUE),
+    median = median(gender, na.rm = TRUE),
+    sd = sd(gender, na.rm = TRUE),
+    min = min(gender, na.rm = TRUE),
+    max = max(gender, na.rm = TRUE)
+  )
+print(gender)
+t.test(data_1$gender ~ data_1$greenwheel_dummy)
+```
+
+Education: Greenwheel vs Just Riders
+```{r}
+educ <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(educ, na.rm = TRUE),
+    median = median(educ, na.rm = TRUE),
+    sd = sd(educ, na.rm = TRUE),
+    min = min(educ, na.rm = TRUE),
+    max = max(educ, na.rm = TRUE)
+  )
+print(educ)
+t.test(data_1$educ ~ data_1$greenwheel_dummy)
+```
+
+Head of Household: Greenwheel vs Just Riders
+```{r}
+head <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean= mean(head, na.rm = TRUE),
+    median = median(head, na.rm = TRUE),
+    sd = sd(head, na.rm = TRUE),
+    min = min(head, na.rm = TRUE),
+    max = max(head, na.rm = TRUE)
+  )
+print(head)
+t.test(data_1$head ~ data_1$greenwheel_dummy)
+```
+
+Marriage: Greenwheel vs Just Riders
+```{r}
+mar <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(mar, na.rm = TRUE),
+    median = median(mar, na.rm = TRUE),
+    sd = sd(mar, na.rm = TRUE),
+    min = min(mar, na.rm = TRUE),
+    max = max(mar, na.rm = TRUE)
+  )
+print(mar)
+t.test(data_1$mar ~ data_1$greenwheel_dummy)
+
+```
+
+Numbers of Dependents: Greenwheel vs Just Riders
+```{r}
+dep <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(dep, na.rm = TRUE),
+    median = median(dep, na.rm = TRUE),
+    sd= sd(dep, na.rm = TRUE),
+    min = min(dep, na.rm = TRUE),
+    max = max(dep, na.rm = TRUE)
+  )
+print(dep)
+t.test(data_1$dep ~ data_1$greenwheel_dummy)
+```
+
+Accident History: Greenwheel vs Just Riders
+```{r}
+acc <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(acc, na.rm = TRUE),
+    median = median(acc, na.rm = TRUE),
+    sd= sd(acc, na.rm = TRUE),
+    min = min(acc, na.rm = TRUE),
+    max = max(acc, na.rm = TRUE)
+  )
+print(acc)
+t.test(data_1$acc ~ data_1$greenwheel_dummy)
+
+```
+
+Insurance Status: Greenwheel vs Just Riders
+```{r}
+insure <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(insure, na.rm = TRUE),
+    median = median(insure, na.rm = TRUE),
+    sd= sd(insure, na.rm = TRUE),
+    min = min(insure, na.rm = TRUE),
+    max = max(insure, na.rm = TRUE)
+  )
+print(insure)
+
+t.test(data_1$insure ~ data_1$greenwheel_dummy)
+```
+
+Boda Income: Greenwheel vs Just Riders
+```{r}
+income_boda <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean= mean(daily_income_boda, na.rm = TRUE),
+    median = median(daily_income_boda, na.rm = TRUE),
+    sd = sd(daily_income_boda, na.rm = TRUE),
+    min = min(daily_income_boda, na.rm = TRUE),
+    max = max(daily_income_boda, na.rm = TRUE)
+  )
+print(income_boda)
+
+t.test(data_1$daily_income_boda ~ data_1$greenwheel_dummy)
+```
+
+Other Income: Greenwheel vs Just Riders
+```{r}
+income_other <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean= mean(other_income, na.rm = TRUE),
+    median = median(other_income, na.rm = TRUE),
+    sd = sd(other_income, na.rm = TRUE),
+    min = min(other_income, na.rm = TRUE),
+    max = max(other_income, na.rm = TRUE)
+  )
+print(income_other)
+
+t.test(data_1$other_income ~ data_1$greenwheel_dummy)
+```
+
+Gross Income: Greenwheel vs Just Riders
+```{r}
+income_gross <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean= mean(gross_income, na.rm = TRUE),
+    median = median(gross_income, na.rm = TRUE),
+    sd = sd(gross_income, na.rm = TRUE),
+    min = min(gross_income, na.rm = TRUE),
+    max = max(gross_income, na.rm = TRUE)
+  )
+print(income_gross)
+
+t.test(data_1$gross_income ~ data_1$greenwheel_dummy)
+```
+
+Net Income: Greenwheel vs Just Riders
+```{r}
+net <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean= mean(disposable_income, na.rm = TRUE),
+    median = median(disposable_income, na.rm = TRUE),
+    sd = sd(disposable_income, na.rm = TRUE),
+    min = min(disposable_income, na.rm = TRUE),
+    max = max(disposable_income, na.rm = TRUE)
+  )
+print(net)
+
+t.test(data_1$disposable_income ~ data_1$greenwheel_dummy)
+```
+
+Time Used for Work (Self Reported): Greenwheel vs Just Riders
+JR:0 GW: 1
+```{r}
+work <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(time_work, na.rm = TRUE),
+    median = median(time_work, na.rm = TRUE),
+    sd = sd(time_work, na.rm = TRUE),
+    min = min(time_work, na.rm = TRUE),
+    max = max(time_work, na.rm = TRUE)
+  )
+print(work)
+
+t.test(data_1$time_work ~ data_1$greenwheel_dummy)
+```
+
+Time Used for Leisure: Greenwheel vs Just Riders
+JR:0 GW: 1
+```{r}
+leisure <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(leisure, na.rm = TRUE),
+    median = median(leisure, na.rm = TRUE),
+    sd = sd(leisure, na.rm = TRUE),
+    min = min(leisure, na.rm = TRUE),
+    max = max(leisure, na.rm = TRUE)
+  )
+
+print(leisure)
+
+t.test(data_1$leisure~data_1$greenwheel_dummy)
+```
+
+Time Used for Home Care: Greenwheel vs Just Riders
+JR:0 GW: 1
+```{r}
+home_labor <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean = mean(home_labor, na.rm = TRUE),
+    median = median(home_labor, na.rm = TRUE),
+    sd = sd(home_labor, na.rm = TRUE),
+    min = min(home_labor, na.rm = TRUE),
+    max = max(home_labor, na.rm = TRUE)
+  )
+print(home_labor)
+
+t.test(data_1$home_labor~data_1$greenwheel_dummy)
+```
+
+Time Used for Sleep: Greenwheel vs Just Riders
+JR:0 GW: 1
+```{r}
+sleep <- data_1 %>% group_by(greenwheel_dummy) %>%
+  summarise(
+    mean= mean(sleep, na.rm = TRUE),
+    median = median(sleep, na.rm = TRUE),
+    sd = sd(sleep, na.rm = TRUE),
+    min = min(sleep, na.rm = TRUE),
+    max = max(sleep, na.rm = TRUE)
+  )
+print(sleep)
+
+t.test(data_1$sleep~data_1$greenwheel_dummy)
+```
