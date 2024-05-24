@@ -56,6 +56,7 @@ ice_daily <- ice_daily %>%
 
 ```
 
+
 ```{r}
 gw_pre <- gw_pre[, colSums(is.na(gw_pre)) < nrow(gw_pre)]
 gw_daily <- gw_daily[, colSums(is.na(gw_daily)) < nrow(gw_daily)]
@@ -64,6 +65,7 @@ ice_daily <- ice_daily[, colSums(is.na(ice_daily)) < nrow(ice_daily)]
 ```
 
 # Filter gw_pre to include only rows with unique phone numbers
+
 ```{r}
 unique_numbers <- unique(gw_pre$phone)
 
@@ -76,6 +78,7 @@ unique(gw_pre$name)
 sort(unique(gw_daily$name))
 ```
 
+
 ```{r}
 gw_pre <- gw_pre %>%
   mutate(name = case_when(
@@ -87,13 +90,12 @@ gw_pre <- gw_pre %>%
     name == "Esbon Araka Matena" ~ "Esbon Matena",
     name == "Fred Gichana nyakundi" ~ "FRED Gichana Nyakundi",
     name == "Isaac Ogira" ~ "Isaak Ouma Ogira",
-    name == "Ronald kennedy murende"~"Ronald murende",
     name == "John mwise ndichu" ~ "John Ndichu", 
     name == "Joseph mukoya" ~ "Joseph mukoya barasa", 
     name == "Justus ochieng" ~ "Jusutus ochieng", 
     name == "Nicholus kyalo" ~ "Nicholus kyalo Samuel",
     name == "Nicholus samuel" ~ "Nicholus kyalo Samuel",
-    name == "Ronald Kennedy murende" ~ "Ronald murende",
+    name == "Ronald Kennedy murende" ~ "Ronald kennedy murende",
     name == "Ronald kennedy murende" ~ "Ronald murende",
     name == "thomas" ~ "Thomas wamukota khisa"    ,TRUE ~ name
   ))
@@ -101,6 +103,7 @@ gw_pre <- gw_pre %>%
 gw_pre <- gw_pre[!duplicated(gw_pre$name), ]
 unique(gw_pre$name)
 ```
+
 
 ```{r}
  gw_daily <- gw_daily %>%
@@ -153,10 +156,13 @@ unique(gw_pre$name)
 sort(unique(gw_daily$name))
 ```
 
+
 ```{r}
 gw <- merge(gw_pre, gw_daily, by = 'name', all = TRUE)
 unique(gw$name)
 ```
+
+
 
 ```{r}
 
@@ -181,19 +187,15 @@ ice$other_income <- replace(ice$other_income1, ice$other_income1 == 0, NA)
 ice$gross_income <- ice$daily_income_boda + ice$other_income1
 ```
 
-# Changes to missing or underrepresented GreenWheel daily payments after original data comparison
-```{r}
-gw$daily_income_boda[gw$`Respondent ID` == "GW29"] <- 1000
-gw$daily_income_boda[gw$`Respondent ID` == "GW95"] <- 1000
-gw$daily_income_boda[gw$`Respondent ID` == "GW50"] <- 850
-```
-
 # Pre Sanity Checks
 
 ## Identification Variable
 ```{r}
 greenwheel <- gw
 just_driver <- ice
+```
+
+```{r}
 greenwheel$greenwheel_dummy <- 1
 just_driver$greenwheel_dummy <- 0
 ```
@@ -328,7 +330,7 @@ if (nrow(appended_df) == nrow(greenwheel) + nrow(just_driver)){
 }
 ```
 
-# Time Worked
+# Time Work
 ```{r}
 appended_shift_start <- appended_df$shift_start
 

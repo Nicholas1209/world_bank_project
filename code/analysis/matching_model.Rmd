@@ -17,6 +17,30 @@ library(readxl)
 df <- read_xlsx('/Users/nicholas/Desktop/Cal_Poly_SLO/5-World_Bank/Data/merged_data/appended_df.xlsx')
 ```
 
+```{r}
+df <- df %>% 
+    filter(disposable_income <= mean(df$disposable_income, na.rm = TRUE) + 3*sd(df$disposable_income, na.rm = TRUE))
+```
+
+# Quick Summary Statistics
+```{r}
+df %>% 
+    group_by(greenwheel_dummy) %>% 
+    summarize(mean_disposable_income = mean(disposable_income))
+```
+
+```{r}
+df %>% 
+    group_by(greenwheel_dummy) %>% 
+    summarize(mean_age = mean(age, na.rm = TRUE))
+```
+
+```{r}
+df %>% 
+    group_by(greenwheel_dummy) %>% 
+    summarize(mean_educ = mean(educ, na.rm = TRUE))
+```
+
 # Matching
 
 ## Matching on Age and Education
